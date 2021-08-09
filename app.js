@@ -21,14 +21,15 @@ const connection = mysql.createConnection({
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DATABASE,
-})
+});
+
+connection.connect(); // 처음에 연결해놔야 protocol 관련 에러 없음
 
 app.get('/', (req, res) => {
     res.send('test');
-})
+});
 
 app.get('/music/all', (req, res) => {
-    connection.connect();
     connection.query('select * from music', function(error, results, fields) {
         if(error) console.log(error);
         else {
@@ -42,10 +43,16 @@ app.get('/music/all', (req, res) => {
             res.json(results);
         }
     });
-    connection.end();
-})
+});
+
+app.get('/music/addTest', (req, res) => {
+    connection.query("insert into music(title, artist) values('title', 'artist');", function(error, results, fields) {
+        console.log(results);
+        res.json(results);
+    });
+});
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
-})
+});
 

@@ -35,7 +35,7 @@ $ mysql -u root -p
 ``` sql
 CREATE DATABASE vocalist;
 USE vocalist;
-CREATE TABLE music(musicId int PRIMARY KEY, title varchar(30) NOT NULL, artist varchar(20) NOT NULL);
+CREATE TABLE music(musicId int PRIMARY KEY auto_increment, title varchar(30) NOT NULL, artist varchar(20) NOT NULL);
 DESC music; // 테이블 조회
 
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '(password)'; // 모든 ip에 대해서 데이터베이스 접근 허용
