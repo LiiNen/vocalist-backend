@@ -82,6 +82,11 @@ app.post('/music/add', (req, res) => {
     });
 });
 
+
+/**
+ * [GET] music search all or one
+ * user_id 필수, id는 0 이상의 정수
+ */
 app.get('/music/search', (req, res) => {
     var id = req.query.id;
     var user_id = req.query.user_id;
@@ -116,6 +121,12 @@ app.get('/music/search', (req, res) => {
     });
 });
 
+
+/**
+ * login
+ * [GET] /login : signin check
+ * [POST] /login : signup action
+ */
 app.get('/login', (req, res) => {
     var email = req.query.email;
     var type = req.query.type;
@@ -180,9 +191,15 @@ app.post('/login', (req, res) => {
     });
 });
 
+
+/**
+ * curation
+ * [POST] /curation : create curation
+ * [DELETE] /curation : delete curation
+ * [GET] /curation/item : get musics(brief) in curation
+ */
 app.get('/curation/item', (req, res) => {
     var id = req.query.id;
-
     var query = `select music_id, music.title, music.artist from curation_item, music\
                 where curation_id = ${id} and music_id = music.id`;
     connection.query(query, function(error, results, fields) {
@@ -206,7 +223,7 @@ app.get('/curation/item', (req, res) => {
     });
 });
 
-app.post('/curation/add', (req, res) => {
+app.post('/curation', (req, res) => {
     var title = req.body.title;
     var content = req.body.content;
     var ctype_id = req.body.ctype_id;
@@ -251,7 +268,28 @@ app.post('/curation/add', (req, res) => {
     });
 });
 
-app.post('/ctype/add', (req, res) => {
+app.delete('/curation', (req, res) => {
+    var id = req.body.id;
+    var query = `delete from curation where id=${id}`;
+    connection.query(query, function(error, results, fields) {
+        if(error) {
+            res.json(query_error);
+        }
+        else {
+            res.json({
+                'status': true
+            });
+        }
+    });
+});
+
+
+/**
+ * ctype
+ * [POST] /ctype: create ctype
+ * [GET]  /ctype: search ctype with id or search all
+ */
+app.post('/ctype', (req, res) => {
     var title = req.body.title;
     var query = `insert into ctype(title) values(\"${title}\");`;
     connection.query(query, function(error, results, fields) {
@@ -260,49 +298,46 @@ app.post('/ctype/add', (req, res) => {
         }
         else {
             res.json({
-                'status': 'true',
+                'status': true,
             });
         }
     });
 });
 
-app.get('/ctype/search', (req, res) => {
+app.get('/ctype', (req, res) => {
     var id = req.query.id;
-    var query = `select * from ctype where id=${id};`;
-    connection.query(query, function(error, results, fields) {
-        if(error) {
-            res.json(query_error);
-        }
-        else {
-            if(results.length == 0) {
+    if(id) {
+        var query = `select * from ctype`;
+        if(id != 0) query = `${query} where id=${id};`;
+        connection.query(query, function(error, results, fields) {
+            if(error) {
+                res.json(query_error);
+            }
+            else {
+                if(results.length == 0) {
+                    res.json({
+                        'status': false,
+                        'body': `no ctype with id ${id}`
+                    });
+                }
                 res.json({
-                    'status': false,
-                    'body': `no ctype with id ${id}`
+                    'status': true,
+                    'body': id==0 ? results : results[0]
                 });
             }
-            res.json({
-                'status': true,
-                'body': results[0]
-            });
-        }
-    })
+        })
+    }
+    else {
+        res.json(query_error);
+    }
 });
 
-app.get('/ctype/all', (req, res) => {
-    var query = `select * from ctype;`;
-    connection.query(query, function(error, results, fields) {
-        if(error) {
-            res.json(query_error);
-        }
-        else {
-            res.json({
-                'status': true,
-                'body': results
-            })
-        }
-    });
-});
 
+/**
+ * love
+ * [POST] /love: like action
+ * [DELETE] /love: dislike action
+ */
 app.post('/love', (req, res) => {
     var music_id = req.body.music_id;
     var user_id = req.body.user_id;
@@ -339,7 +374,10 @@ app.delete('/love', (req, res) => {
     });
 });
 
+
+/**
+ * start express server
+ */
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
 });
-
