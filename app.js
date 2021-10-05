@@ -36,30 +36,52 @@ app.get('/', (req, res) => {
 app.get('/login', (req, res) => {
     var email = req.query.email;
     var type = req.query.type;
-    var query = 'select * from user where email=\"' + email + '\"and type=\"' + type + '\"';
-    connection.query(query, function(error, results, fields) {
-        if(error) console.log(error);
-        else {
-            if(results.length == 0) {
-                res.json({'exist': false});
+    if(email && type) {
+        var query = 'select * from user where email=\"' + email + '\"and type=\"' + type + '\"';
+        connection.query(query, function(error, results, fields) {
+            if(error) {
+                console.log(error);
+                res.json(null);
             }
-            else res.json({'exist': true});
-        }
-    });
+            else {
+                if(results.length == 0) {
+                    res.json(null);
+                }
+                else res.json({
+                    'exist': true,
+                    'body': results[0]
+                });
+            }
+        });
+    }
+    else res.json(null);
 });
 
 app.post('/login', (req, res) => {
     var email = req.body.email;
     var name = req.body.name;
     var type = req.body.type;
-    console.log(req.body);
-    var query = 'insert into user(email, name, type) values(\"' + email + '\", \"' + name + '\", \"' + type + '\");'
-    connection.query(query, function(error, results, fields) {
-        if(error) console.log(error);
-        else {
-            res.json(results);
-        }
-    });
+    if(email && name && type) {
+        var query = 'insert into user(email, name, type) values(\"' + email + '\", \"' + name + '\", \"' + type + '\");'
+        connection.query(query, function(error, results, fields) {
+            if(error) {
+                console.log(error);
+                res.json(null);
+            }
+            else {
+                res.json({
+                    'success': (results.protocol41 == true),
+                    'body': {
+                        'id': results.insertId,
+                        'email': email,
+                        'name': name,
+                        'type': type
+                    }
+                });
+            }
+        });
+    }
+    else res.json(null);
 });
 
 app.listen(port, () => {
