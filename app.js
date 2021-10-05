@@ -3,12 +3,14 @@
  */
 
 var express = require('express');
+var cors = require('cors');
 var app = express();
 const port = 3000;
 
-app.use(express.json())
+app.use(express.json());
 app.use(express.urlencoded({'extended' : true}));
 app.use(express.static('public'));
+app.use(cors());
 
 /** 
  * mysql setting with dotenv key
@@ -31,9 +33,9 @@ app.get('/', (req, res) => {
     res.send('test');
 });
 
-app.get('/login/:email/:type', (req, res) => {
-    var email = req.params.email;
-    var type = req.params.type;
+app.get('/login', (req, res) => {
+    var email = req.query.email;
+    var type = req.query.type;
     var query = 'select * from user where email=\"' + email + '\"and type=\"' + type + '\"';
     connection.query(query, function(error, results, fields) {
         if(error) console.log(error);
@@ -46,30 +48,17 @@ app.get('/login/:email/:type', (req, res) => {
     });
 });
 
-app.post('/signin', (req, res) => {
-
-});
-
-app.get('/music/all', (req, res) => {
-    connection.query('select * from music', function(error, results, fields) {
+app.post('/login', (req, res) => {
+    var email = req.body.email;
+    var name = req.body.name;
+    var type = req.body.type;
+    console.log(req.body);
+    var query = 'insert into user(email, name, type) values(\"' + email + '\", \"' + name + '\", \"' + type + '\");'
+    connection.query(query, function(error, results, fields) {
         if(error) console.log(error);
         else {
-            console.log(results);
-            results.map(function(packet) {
-                console.log('------');
-                console.log('packet.musicId: ', packet.musicId);
-                console.log('packet.title: ', packet.title);
-                console.log('packet.artist: ', packet.artist);
-            });
             res.json(results);
         }
-    });
-});
-
-app.get('/music/addTest', (req, res) => {
-    connection.query("insert into music(title, artist) values('title', 'artist');", function(error, results, fields) {
-        console.log(results);
-        res.json(results);
     });
 });
 
