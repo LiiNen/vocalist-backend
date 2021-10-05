@@ -84,8 +84,13 @@ app.post('/music/add', (req, res) => {
 
 app.get('/music/search', (req, res) => {
     var id = req.query.id;
-    if(id) {
-        var query = `select * from music`;
+    var user_id = req.query.user_id;
+    if(id && user_id) {
+        var query = `select distinct *,
+                        case when exists(select id from love where user_id=${user_id} and music_id=music.id)
+                        then 1 else 0
+                        end as islike
+                    from music`;
         if(id != 0) query = `${query} where id=${id};`;
         connection.query(query, function(error, results, fields) {
             if(error) {
@@ -96,12 +101,12 @@ app.get('/music/search', (req, res) => {
                     res.json({
                         'status': false,
                         'log': `no music with id ${id}`
-                    })
+                    });
                 }
                 else res.json({
                     'status': true,
                     'body': (id == 0) ? results : results[0]
-                })
+                });
             }
         });
     }
@@ -293,6 +298,42 @@ app.get('/ctype/all', (req, res) => {
             res.json({
                 'status': true,
                 'body': results
+            })
+        }
+    });
+});
+
+app.post('/love', (req, res) => {
+    var music_id = req.body.music_id;
+    var user_id = req.body.user_id;
+    var query = `insert into love(music_id, user_id) values(${music_id}, ${user_id})`;
+    connection.query(query, function(error, results, fields) {
+        if(error) {
+            console.log(error);
+            res.json(query_error);
+        }
+        else {
+            res.json({
+                'status': true,
+                'body': 'like'
+            })
+        }
+    });
+});
+app.delete('/love', (req, res) => {
+    var music_id = req.body.music_id;
+    var user_id = req.body.user_id;
+    var query = `delete from love where music_id=${music_id} and user_id=${user_id}`;
+    connection.query(query, function(error, results, fields) {
+        if(error) {
+            console.log(error);
+            res.json(query_error);
+        }
+        else {
+            console.log(results);
+            res.json({
+                'status': true,
+                'body': 'unlike'
             })
         }
     });
