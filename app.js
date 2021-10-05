@@ -23,10 +23,31 @@ const connection = mysql.createConnection({
     database: process.env.MYSQL_DATABASE,
 });
 
-connection.connect(); // 처음에 연결해놔야 protocol 관련 에러 없음
+// 처음에 연결해놔야 protocol 관련 에러 없음
+connection.connect();
+
 
 app.get('/', (req, res) => {
     res.send('test');
+});
+
+app.get('/login/:email/:type', (req, res) => {
+    var email = req.params.email;
+    var type = req.params.type;
+    var query = 'select * from user where email=\"' + email + '\"and type=\"' + type + '\"';
+    connection.query(query, function(error, results, fields) {
+        if(error) console.log(error);
+        else {
+            if(results.length == 0) {
+                res.json({'exist': false});
+            }
+            else res.json({'exist': true});
+        }
+    });
+});
+
+app.post('/signin', (req, res) => {
+
 });
 
 app.get('/music/all', (req, res) => {
