@@ -38,7 +38,7 @@ app.get('/', (req, res) => {
 });
 
 app.post('/music/add', (req, res) => {
-    var itunes_id = req.body.itunes_index;
+    var itunes_id = req.body.itunes_id;
     var title = req.body.title;
     var artist = req.body.artist;
     var genre = req.body.genre;
@@ -46,7 +46,7 @@ app.post('/music/add', (req, res) => {
     var year = req.body.year;
 
     if(itunes_id && title && artist && genre && time && year) {
-        var select_query = `select * from music where itunes_id=${itunes_id}`;
+        var select_query = `select * from music where itunes_id=${itunes_id};`;
         connection.query(select_query, function(error, results, fields) {
             if(error) {
                 res.json(query_error);
@@ -54,12 +54,13 @@ app.post('/music/add', (req, res) => {
             else {
                 if(results.length == 0) {
                     var query = `insert into music(itunes_id, title, artist, genre, time, year)\
-                                values(${itunes_id}, \"${title}\", \"${artist}\", \"${genre}\", ${time}, ${year}`;
+                                values(${itunes_id}, \"${title}\", \"${artist}\", \"${genre}\", ${time}, ${year});`;
                     connection.query(query, function(error, results, fields) {
                         if(error) {
                             res.json(query_error);
                         }
                         else {
+                            console.log(results.insertId);
                             res.json({
                                 'status': true
                             });
@@ -84,7 +85,7 @@ app.post('/music/add', (req, res) => {
 app.get('/music/search', (req, res) => {
     var id = req.query.id;
     if(id) {
-        var query = `select * from music where id=${id}`;
+        var query = `select * from music where id=${id};`;
         connection.query(query, function(error, results, fields) {
             if(error) {
                 res.json(query_error);
@@ -113,7 +114,7 @@ app.get('/login', (req, res) => {
     var email = req.query.email;
     var type = req.query.type;
     if(email && type) {
-        var query = `select * from user where email=\"${email}\"and type=\"${type}\"`;
+        var query = `select * from user where email=\"${email}\"and type=\"${type}\";`;
         connection.query(query, function(error, results, fields) {
             if(error) {
                 res.json(query_error);
@@ -182,7 +183,7 @@ app.post('/curation/add', (req, res) => {
     try{
         if(title && content && ctype_id) {
             var query = `insert into curation(title, content, ctype_id)\
-                        values(\"${title}\", \"${content}\", ${ctype_id})`;
+                        values(\"${title}\", \"${content}\", ${ctype_id});`;
             connection.query(query, function(error, results, fields) {
                 if(error) {
                     console.log(error);
@@ -191,7 +192,7 @@ app.post('/curation/add', (req, res) => {
                 else {
                     for(music_id in music_id_list) {
                         var query_insert = `insert into curation_item(curation_id, music_id)\
-                                            values(${results.insertId}, ${music_id})`;
+                                            values(${results.insertId}, ${music_id});`;
                         connection.query(query_insert, function(error, results, fields) {
                             if(error) {
                                 res.json(query_error);
@@ -220,7 +221,7 @@ app.post('/curation/add', (req, res) => {
 
 app.post('/ctype/add', (req, res) => {
     var title = req.body.title;
-    var query = `insert into ctype(title) values(\"${title}\")`;
+    var query = `insert into ctype(title) values(\"${title}\");`;
     connection.query(query, function(error, results, fields) {
         if(error) {
             res.json(query_error);
@@ -235,7 +236,7 @@ app.post('/ctype/add', (req, res) => {
 
 app.get('/ctype/search', (req, res) => {
     var id = req.query.id;
-    var query = `select * from ctype where id=${id}`;
+    var query = `select * from ctype where id=${id};`;
     connection.query(query, function(error, results, fields) {
         if(error) {
             res.json(query_error);
@@ -256,7 +257,7 @@ app.get('/ctype/search', (req, res) => {
 });
 
 app.get('/ctype/all', (req, res) => {
-    var query = `select * from ctype`;
+    var query = `select * from ctype;`;
     connection.query(query, function(error, results, fields) {
         if(error) {
             res.json(query_error);
