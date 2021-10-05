@@ -85,7 +85,8 @@ app.post('/music/add', (req, res) => {
 app.get('/music/search', (req, res) => {
     var id = req.query.id;
     if(id) {
-        var query = `select * from music where id=${id};`;
+        var query = `select * from music`;
+        if(id != 0) query = `${query} where id=${id};`;
         connection.query(query, function(error, results, fields) {
             if(error) {
                 res.json(query_error);
@@ -99,7 +100,7 @@ app.get('/music/search', (req, res) => {
                 }
                 else res.json({
                     'status': true,
-                    'body': results[0]
+                    'body': (id == 0) ? results : results[0]
                 })
             }
         });
@@ -171,6 +172,32 @@ app.post('/login', (req, res) => {
     else res.json({
         'status': false,
         'log': 'wrong request body name'
+    });
+});
+
+app.get('/curation/item', (req, res) => {
+    var id = req.query.id;
+
+    var query = `select music_id, music.title, music.artist from curation_item, music\
+                where curation_id = ${id} and music_id = music.id`;
+    connection.query(query, function(error, results, fields) {
+        if(error) {
+            res.json(query_error);
+        }
+        else {
+            if(results.length == 0) {
+                res.json({
+                    'status': false,
+                    'log': `no music in curation id ${id}`
+                })
+            }
+            else {
+                res.json({
+                    'status': true,
+                    'body': results
+                })
+            }
+        }
     });
 });
 
