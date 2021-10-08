@@ -33,11 +33,20 @@ var query_error = {
 // 처음에 연결해놔야 protocol 관련 에러 없음
 connection.connect();
 
+
+/**
+ * 서버 열려있는지 확인
+ */
 app.get('/', (req, res) => {
     res.send('test');
 });
 
-app.post('/music/add', (req, res) => {
+
+/**
+ * /music
+ * [POST] itunes_id, title, artist, genre, time, year => insert music if not in database(check itunes_id)
+ */
+app.post('/music', (req, res) => {
     var itunes_id = req.body.itunes_id;
     var title = req.body.title;
     var artist = req.body.artist;
@@ -84,8 +93,8 @@ app.post('/music/add', (req, res) => {
 
 
 /**
- * [GET] music search all or one
- * user_id 필수, id는 0 이상의 정수
+ * /music
+ * [GET] id, user_id => get music with user like, id 0 for get all music 
  */
 app.get('/music/search', (req, res) => {
     var id = req.query.id;
@@ -123,9 +132,9 @@ app.get('/music/search', (req, res) => {
 
 
 /**
- * login
- * [GET] /login : signin check
- * [POST] /login : signup action
+ * /login
+ * [GET] email, type => signin check
+ * [POST] email, name, type => signup action
  */
 app.get('/login', (req, res) => {
     var email = req.query.email;
@@ -193,36 +202,10 @@ app.post('/login', (req, res) => {
 
 
 /**
- * curation
- * [POST] /curation : create curation
- * [DELETE] /curation : delete curation
- * [GET] /curation/item : get musics(brief) in curation
+ * /curation
+ * [POST] title, content, ctype_id, music_id_list => create curation
+ * [DELETE] id : delete curation
  */
-app.get('/curation/item', (req, res) => {
-    var id = req.query.id;
-    var query = `select music_id, music.title, music.artist from curation_item, music\
-                where curation_id = ${id} and music_id = music.id`;
-    connection.query(query, function(error, results, fields) {
-        if(error) {
-            res.json(query_error);
-        }
-        else {
-            if(results.length == 0) {
-                res.json({
-                    'status': false,
-                    'log': `no music in curation id ${id}`
-                })
-            }
-            else {
-                res.json({
-                    'status': true,
-                    'body': results
-                })
-            }
-        }
-    });
-});
-
 app.post('/curation', (req, res) => {
     var title = req.body.title;
     var content = req.body.content;
@@ -285,26 +268,41 @@ app.delete('/curation', (req, res) => {
 
 
 /**
- * ctype
- * [POST] /ctype: create ctype
- * [GET]  /ctype: search ctype with id or search all
+ * /curation/item
+ * [GET] curation_id => get music(brief) list in curation
  */
-app.post('/ctype', (req, res) => {
-    var title = req.body.title;
-    var query = `insert into ctype(title) values(\"${title}\");`;
+app.get('/curation/item', (req, res) => {
+    var curation_id = req.query.curation_id;
+    var query = `select music.id, music.title, music.artist from music\
+                where music.id in (select music_id from curation_item where curation_id = ${curation_id});`;
     connection.query(query, function(error, results, fields) {
         if(error) {
             res.json(query_error);
         }
         else {
-            res.json({
-                'status': true,
-            });
+            if(results.length == 0) {
+                res.json({
+                    'status': false,
+                    'log': `no music in curation id ${id}`
+                })
+            }
+            else {
+                res.json({
+                    'status': true,
+                    'body': results
+                })
+            }
         }
     });
 });
 
-app.get('/ctype', (req, res) => {
+
+/**
+ * /ctype
+ * [GET] id => search ctype with id, 0 for search all
+ * [POST] title => create ctype
+ */
+ app.get('/ctype', (req, res) => {
     var id = req.query.id;
     if(id) {
         var query = `select * from ctype`;
@@ -332,11 +330,26 @@ app.get('/ctype', (req, res) => {
     }
 });
 
+app.post('/ctype', (req, res) => {
+    var title = req.body.title;
+    var query = `insert into ctype(title) values(\"${title}\");`;
+    connection.query(query, function(error, results, fields) {
+        if(error) {
+            res.json(query_error);
+        }
+        else {
+            res.json({
+                'status': true,
+            });
+        }
+    });
+});
+
 
 /**
- * love
- * [POST] /love: like action
- * [DELETE] /love: dislike action
+ * /love
+ * [POST] music_id, user_id => like music
+ * [DELETE] music_id, user_id => dislike music
  */
 app.post('/love', (req, res) => {
     var music_id = req.body.music_id;
@@ -355,6 +368,7 @@ app.post('/love', (req, res) => {
         }
     });
 });
+
 app.delete('/love', (req, res) => {
     var music_id = req.body.music_id;
     var user_id = req.body.user_id;
@@ -369,11 +383,136 @@ app.delete('/love', (req, res) => {
             res.json({
                 'status': true,
                 'body': 'unlike'
-            })
+            });
         }
     });
 });
 
+
+/**
+ * /playlist
+ * [GET] user_id => get playlist of userid
+ * [POST] user_id, title, visible => create playlist with userid
+ * [DELETE] id => delete playlist of id(playlist)
+ */
+app.get('/playlist', (req, res) => {
+   var user_id = req.query.user_id;
+   var query = `select id, title from playlist where user_id=${user_id}`;
+   connection.query(query, function(error, results, fields) {
+       if(error) {
+           console.log(error);
+           res.json(query_error);
+       }
+       else {
+           console.log(results);
+           res.json({
+               'status': true,
+               'body': results
+           });
+       }
+   });
+});
+
+app.post('/playlist', (req, res) => {
+    var user_id = req.body.user_id;
+    var title = req.body.title;
+    var visible = req.body.visible;
+    var query = `insert into playlist(user_id, title, visible) values(${user_id},\"${title}\",${visible})`;
+    connection.query(query, function(error, results, fields) {
+        if(error) {
+            console.log(error);
+            res.json(query_error);
+        }
+        else {
+            console.log(results);
+            res.json({
+                'status': true,
+                'body': 'insert success'
+            });
+        }
+    })
+});
+
+app.delete('/playlist', (req, res) => {
+    var id = req.body.id;
+    var query = `delete from playlist where id=${id}`;
+    connection.query(query, function(error, results, fields) {
+        if(error) {
+            console.log(error);
+            res.json(query_error);
+        }
+        else {
+            console.log(results);
+            res.json({
+                'status': true,
+                'body': 'delete success'
+            });
+        }
+    });
+});
+
+
+/**
+ * /playlist/item
+ * [GET] playlist_id => get music data in list
+ * [POST] playlist_id, music_id => insert
+ * [DELETE] playlist_id, music_id => delete
+ */
+app.get('/playlist/item', (req, res) => {
+    var playlist_id = req.query.playlist_id;
+    var query = `select * from music where music.id in (select music_id from playlist_item as pi where pi.playlist_id=${playlist_id})`;
+    connection.query(query, function(error, results, fields) {
+        if(error) {
+            console.log(error);
+            res.json(query_error);
+        }
+        else {
+            console.log(results);
+            res.json({
+                'status': true,
+                'body': results
+            });
+        }
+    });
+});
+
+app.insert('/playlist/item', (req, res) => {
+    var playlist_id = req.body.playlist_id;
+    var music_id = req.body.music_id;
+    var query = `insert into playlist_item(playlist_id, music_id) values(${playlist_id}, ${music_id})`;
+    connection.query(query, function(error, results, fields) {
+        if(error) {
+            console.log(error);
+            res.json(query_error);
+        }
+        else {
+            console.log(results);
+            res.json({
+                'status': true,
+                'body': 'insert success'
+            });
+        }
+    });
+});
+
+app.delete('/playlist/item', (req, res) => {
+    var playlist_id = req.body.playlist_id;
+    var music_id = req.body.music_id;
+    var query = `delete from playlist_item where playlist_id=${playlist_id} and music_id=${music_id}`;
+    connection.query(query, function(error, results, fields) {
+        if(error) {
+            console.log(error);
+            res.json(query_error);
+        }
+        else {
+            console.log(results);
+            res.json({
+                'status': true,
+                'body': 'delete success'
+            });
+        }
+    });
+});
 
 /**
  * start express server
