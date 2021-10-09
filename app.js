@@ -33,6 +33,8 @@ var query_error = {
 // 처음에 연결해놔야 protocol 관련 에러 없음
 connection.connect();
 
+var music_brief = 'music.id, music.title, music.artist';
+var music_detial = '*';
 
 /**
  * 서버 열려있는지 확인
@@ -55,7 +57,7 @@ app.post('/music', (req, res) => {
     var year = req.body.year;
 
     if(itunes_id && title && artist && genre && time && year) {
-        var select_query = `select * from music where itunes_id=${itunes_id};`;
+        var select_query = `select id from music where itunes_id=${itunes_id};`;
         connection.query(select_query, function(error, results, fields) {
             if(error) {
                 res.json(query_error);
@@ -94,9 +96,9 @@ app.post('/music', (req, res) => {
 
 /**
  * /music
- * [GET] id, user_id => get music with user like, id 0 for get all music 
+ * [GET] id, user_id => get music with user like, id 0 for get all music
  */
-app.get('/music/search', (req, res) => {
+app.get('/music', (req, res) => {
     var id = req.query.id;
     var user_id = req.query.user_id;
     if(id && user_id) {
@@ -270,6 +272,8 @@ app.delete('/curation', (req, res) => {
 /**
  * /curation/item
  * [GET] curation_id => get music(brief) list in curation
+ * [POST] curation_id, music_id => add one music to curation
+ * [DELETE] curation_id, music_id => delete one music in curation
  */
 app.get('/curation/item', (req, res) => {
     var curation_id = req.query.curation_id;
@@ -296,11 +300,50 @@ app.get('/curation/item', (req, res) => {
     });
 });
 
+app.post('/curation/item', (req, res) => {
+    var curation_id = req.body.curation_id;
+    var music_id = req.body.music_id;
+    var query = `insert into curation_item(curation_id, music_id) values(${curation_id}, ${music_id})`;
+    connection.query(query, function(error, results, fields) {
+        if(error) {
+            console.log(error);
+            res.json(query_error);
+        }
+        else {
+            console.log(results);
+            res.json({
+                'status': true,
+                'body': 'insert success'
+            });
+        }
+    });
+});
+
+app.delete('/curation/item', (req, res) => {
+    var curation_id = req.body.curation_id;
+    var music_id = req.body.music_id;
+    var query = `delete from curation_item where curation_id=${curation_id} and music_id=${music_id}`;
+    connection.query(query, function(error, results, fields) {
+        if(error) {
+            console.log(error);
+            res.json(query_error);
+        }
+        else {
+            console.log(results);
+            res.json({
+                'status': true,
+                'body': 'delete success'
+            });
+        }
+    });
+});
+
 
 /**
  * /ctype
  * [GET] id => search ctype with id, 0 for search all
  * [POST] title => create ctype
+ * [DELETE] id => delete ctype with id in ctype
  */
  app.get('/ctype', (req, res) => {
     var id = req.query.id;
@@ -333,6 +376,21 @@ app.get('/curation/item', (req, res) => {
 app.post('/ctype', (req, res) => {
     var title = req.body.title;
     var query = `insert into ctype(title) values(\"${title}\");`;
+    connection.query(query, function(error, results, fields) {
+        if(error) {
+            res.json(query_error);
+        }
+        else {
+            res.json({
+                'status': true,
+            });
+        }
+    });
+});
+
+app.delete('/ctype', (req, res) => {
+    var id = req.body.id;
+    var query = `delete from ctype where id=${id}`;
     connection.query(query, function(error, results, fields) {
         if(error) {
             res.json(query_error);
@@ -476,7 +534,7 @@ app.get('/playlist/item', (req, res) => {
     });
 });
 
-app.insert('/playlist/item', (req, res) => {
+app.post('/playlist/item', (req, res) => {
     var playlist_id = req.body.playlist_id;
     var music_id = req.body.music_id;
     var query = `insert into playlist_item(playlist_id, music_id) values(${playlist_id}, ${music_id})`;
