@@ -9,9 +9,14 @@
 module.exports = (connection) => {
   var router = require('express').Router();
 
-  router.get('/', (req, res) => {
+  router.get('/:type?', (req, res) => {
     var playlist_id = req.query.playlist_id;
-    var query = `select * from music where music.id in (select music_id from playlist_item as pi where pi.playlist_id=${playlist_id})`;
+
+    var type = req.params.type;
+    var target = '*';
+    if(type == 'part') target = 'music.id, music.title, music.artist';
+
+    var query = `select ${target} from music where music.id in (select music_id from playlist_item as pi where pi.playlist_id=${playlist_id})`;
     connection.query(query, function(error, results, fields) {
       if(error) {
         console.log(error);

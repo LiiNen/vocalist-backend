@@ -9,9 +9,13 @@
 module.exports = (connection) => {
   var router = require('express').Router();
 
-  router.get('/', (req, res) => {
+  router.get('/:type?', (req, res) => {
+    var type = req.params.type;
+    var target = '*';
+    if(type == 'part') target = 'music.id, music.title, music.artist';
+
     var curation_id = req.query.curation_id;
-    var query = `select music.id, music.title, music.artist from music\
+    var query = `select ${target}\
                 where music.id in (select music_id from curation_item where curation_id = ${curation_id});`;
     connection.query(query, function(error, results, fields) {
       if(error) {

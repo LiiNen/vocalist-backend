@@ -6,12 +6,17 @@
 
 module.exports = (connection) => {
   var router = require('express').Router();
-   
-  router.get('/', (req, res) => {
+  
+  router.get('/:type?', (req, res) => {
     var id = req.query.id;
     var user_id = req.query.user_id;
+    
+    var type = req.params.type;
+    var target = '*';
+    if(type == 'part') target = 'music.id, music.title, music.artist';
+
     if(id && user_id) {
-      var query = `select distinct *,
+      var query = `select distinct ${target},
                     case when exists(select id from love where user_id=${user_id} and music_id=music.id)
                     then 1 else 0
                     end as islike
