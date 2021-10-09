@@ -24,9 +24,9 @@ module.exports = (connection) => {
             res.json('query error');
           }
           else {
-            for(music_id in music_id_list) {
+            for(var i = 0; music_id_list[i]; i++) {
               var query_insert = `insert into curation_item(curation_id, music_id)\
-                                  values(${results.insertId}, ${music_id});`;
+                                  values(${results.insertId}, ${music_id_list[i]});`;
               connection.query(query_insert, function(error, results, fields) {
                 if(error) {
                   res.json('query error');
