@@ -25,11 +25,13 @@ module.exports = (connection) => {
           }
           else {
             for(var i = 0; music_id_list[i]; i++) {
+              var curation_id = results.insertId;
               var query_insert = `insert into curation_item(curation_id, music_id)\
                                   values(${results.insertId}, ${music_id_list[i]});`;
               connection.query(query_insert, function(error, results, fields) {
-                if(error) {
+                if(error && !res.headersSent) {
                   res.json('query error');
+                  connection.query(`delete from curation where id=${curation_id}`);
                 }
               });
             }
@@ -45,13 +47,6 @@ module.exports = (connection) => {
       res.json({
         'status': false,
         'log': 'try catch error'
-      });
-    }
-    
-    if(!res.headersSent) {
-      res.json({
-        'status': true,
-        'log': 'successfully insert curation data'
       });
     }
   });
