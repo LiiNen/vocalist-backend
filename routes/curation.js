@@ -58,14 +58,22 @@ module.exports = (connection) => {
 
   router.delete('/', (req, res) => {
     var id = req.body.id;
-    var query = `delete from curation where id=${id}`;
-    connection.query(query, function(error, results, fields) {
+    var queryCuration = `delete from curation where id=${id}`;
+    var queryCurationItem = `delete from curation_item where curation_id=${id}`;
+    connection.query(queryCurationItem, function(error, results, fields) {
       if(error) {
-        res.json('query error');
+        res.json('query curationItem error');
       }
       else {
-        res.json({
-            'status': true
+        connection.query(queryCuration, function(error, results, fields) {
+          if(error) {
+            res.json('query curation error');
+          }
+          else {
+            res.json({
+                'status': true
+            });
+          }
         });
       }
     });
