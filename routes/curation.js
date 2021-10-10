@@ -8,6 +8,25 @@
 module.exports = (connection) => {
   var router = require('express').Router();
 
+  router.get('/', (req, res) => {
+    var id = req.query.id;
+    
+    var query = `select * from curation`;
+    if(id != 0) query = `${query} where id=${id}`;
+    connection.query(query, function(error, results, fields) {
+      if(error) {
+        console.log(error);
+        res.json('query error');
+      }
+      else {
+        res.json({
+          'status': true,
+          'body': results
+        });
+      }
+    }); 
+  });
+
   router.post('/', (req, res) => {
     var title = req.body.title;
     var content = req.body.content;
@@ -24,12 +43,14 @@ module.exports = (connection) => {
             res.json('query error');
           }
           else {
-            for(music_id in music_id_list) {
+            for(var i = 0; music_id_list[i]; i++) {
+              var curation_id = results.insertId;
               var query_insert = `insert into curation_item(curation_id, music_id)\
-                                  values(${results.insertId}, ${music_id});`;
+                                  values(${results.insertId}, ${music_id_list[i]});`;
               connection.query(query_insert, function(error, results, fields) {
-                if(error) {
+                if(error && !res.headersSent) {
                   res.json('query error');
+                  connection.query(`delete from curation where id=${curation_id}`);
                 }
               });
             }
@@ -45,13 +66,6 @@ module.exports = (connection) => {
       res.json({
         'status': false,
         'log': 'try catch error'
-      });
-    }
-    
-    if(!res.headersSent) {
-      res.json({
-        'status': true,
-        'log': 'successfully insert curation data'
       });
     }
   });
