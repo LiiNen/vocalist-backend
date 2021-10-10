@@ -8,6 +8,25 @@
 module.exports = (connection) => {
   var router = require('express').Router();
 
+  router.get('/', (req, res) => {
+    var id = req.query.id;
+    
+    var query = `select * from curation`;
+    if(id != 0) query = `${query} where id=${id}`;
+    connection.query(query, function(error, results, fields) {
+      if(error) {
+        console.log(error);
+        res.json('query error');
+      }
+      else {
+        res.json({
+          'status': true,
+          'body': results
+        });
+      }
+    }); 
+  });
+
   router.post('/', (req, res) => {
     var title = req.body.title;
     var content = req.body.content;
