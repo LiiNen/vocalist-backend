@@ -51,17 +51,22 @@ module.exports = (connection) => {
 
   router.delete('/', (req, res) => {
     var id = req.body.id;
-    var query = `delete from playlist where id=${id}`;
-    connection.query(query, function(error, results, fields) {
+    var queryPlaylist = `delete from playlist where id=${id}`;
+    var queryPlaylistItem = `delete from playlist_item where playlist_id=${id}`;
+    connection.query(queryPlaylistItem, function(error, results, fields) {
       if(error) {
-        console.log(error);
-        res.json('query error');
+        res.json('query playlistItem error');
       }
       else {
-        console.log(results);
-        res.json({
-            'status': true,
-            'body': 'delete success'
+        connection.query(queryPlaylist, function(error, results, fields) {
+          if(error) {
+            res.json('query playlist error');
+          }
+          else {
+            res.json({
+              'status': true
+            });
+          }
         });
       }
     });
