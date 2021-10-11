@@ -15,7 +15,7 @@ module.exports = (connection) => {
     if(type == 'part') target = 'music.id, music.title, music.artist';
 
     var curation_id = req.query.curation_id;
-    var query = `select ${target}\
+    var query = `select ${target} from music\
                 where music.id in (select music_id from curation_item where curation_id = ${curation_id});`;
     connection.query(query, function(error, results, fields) {
       if(error) {
