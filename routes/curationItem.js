@@ -4,6 +4,9 @@
  * [GET] curation_id => get music(brief) list in curation
  * [POST] curation_id, music_id => add one music to curation
  * [DELETE] curation_id, music_id => delete one music in curation
+ * 
+ * /curation/item/list
+ * [POST] curation_id, music_id_list => add musics to curation
  */
 
 module.exports = (connection) => {
@@ -55,6 +58,39 @@ module.exports = (connection) => {
         });
       }
     });
+  });
+
+  router.post('/list', (req, res) => {
+    var curation_id = req.body.curation_id;
+    var music_id_list = req.body.music_id_list;
+    var count = 0;
+    if(music_id_list.length == 0) {
+      res.json({
+        'status': true,
+        'log': 'no items in music_id_list'
+      });
+    }
+    for(var i = 0; i < music_id_list.length; i++) {
+      var query = `insert into curation_item(curation_id, music_id) values(${curation_id}, ${music_id_list[i]})`;
+      count += 1;
+      connection.query(query, function(error, results, fields) {
+        if(error && !res.headersSent) {
+          res.json({
+            'status': false,
+            'log': 'music_id_list type error'
+          });
+          for(var j = 0; j < i; j++) {
+            connection.query(`delete from curation_item where curation_id=${curation_id} and music_id=${music_id_list[j]};`);
+          }
+        }
+        else if(!res.headersSent && count == music_id_list.length) {
+          res.json({
+            'status': true,
+            'log': 'curation insertion success'
+          });
+        }
+      });
+    }
   });
 
   router.delete('/', (req, res) => {
