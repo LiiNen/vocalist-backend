@@ -31,6 +31,12 @@ connection.connect(function(error) {
   if(error) throw error;
 });
 
+setTimeout(function() {
+  connection.end();
+  connection.connect(function(error) {
+    if(error) throw error;
+  });
+}, 216000);
 
 // server listening test
 app.get('/', (req, res) => {
