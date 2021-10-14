@@ -13,66 +13,39 @@ app.use(express.urlencoded({'extended' : true}));
 app.use(express.static('public'));
 app.use(cors());
 
-
-/** 
- * mysql stting & connection
- */
-require("dotenv").config();
-
-const mysql = require('mysql');
-const connection = mysql.createConnection({
-  host: process.env.MYSQL_HOST,
-  user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASSWORD,
-  database: process.env.MYSQL_DATABASE,
-});
-
-connection.connect(function(error) {
-  if(error) throw error;
-});
-
-setTimeout(function() {
-  connection.end();
-  connection.connect(function(error) {
-    if(error) throw error;
-  });
-}, 216000);
-
 // server listening test
 app.get('/', (req, res) => {
   res.send('server is running');
 });
 
-var login = require('./routes/login')(connection);
+var login = require('./routes/login')();
 app.use('/login', login);
 
-var music = require('./routes/music')(connection);
+var music = require('./routes/music')();
 app.use('/music', music);
 
-var love = require('./routes/love')(connection);
+var love = require('./routes/love')();
 app.use('/love', love);
 
-var playlist = require('./routes/playlist')(connection);
+var playlist = require('./routes/playlist')();
 app.use('/playlist', playlist);
 
-var playlistItem = require('./routes/playlistItem')(connection);
+var playlistItem = require('./routes/playlistItem')();
 app.use('/playlist/item', playlistItem);
 
-var curation = require('./routes/curation')(connection);
+var curation = require('./routes/curation')();
 app.use('/curation', curation);
 
-var curationItem = require('./routes/curationItem')(connection);
+var curationItem = require('./routes/curationItem')();
 app.use('/curation/item', curationItem);
 
-var ctype = require('./routes/ctype')(connection);
+var ctype = require('./routes/ctype')();
 app.use('/ctype', ctype);
 
-var friend = require('./routes/friend')(connection);
+var friend = require('./routes/friend')();
 app.use('/friend', friend);
 
 // start server
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 });
-
-module.exports = connection;

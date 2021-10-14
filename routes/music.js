@@ -4,8 +4,9 @@
  * [POST] itunes_id, title, artist, genre, time, year => insert music if not in database(check itunes_id)
  */
 
-module.exports = (connection) => {
+module.exports = () => {
   var router = require('express').Router();
+  var getConnection = require('../connection');
   
   router.get('/:type?', (req, res) => {
     var id = req.query.id;
@@ -22,23 +23,28 @@ module.exports = (connection) => {
                     end as islike
                   from music`;
       if(id != 0) query = `${query} where id=${id};`;
-      connection.query(query, function(error, results, fields) {
-        if(error) {
-          res.json('query error');
-        }
-        else {
-          if(results.length == 0) {
-            res.json({
-              'status': false,
-              'log': `no music with id ${id}`
+      
+      getConnection(function(connection) {
+        connection.query(query, function(error, results, fields) {
+          if(error) {
+            res.json('query error');
+          }
+          else {
+            if(results.length == 0) {
+              res.json({
+                'status': false,
+                'log': `no music with id ${id}`
+              });
+            }
+            else res.json({
+              'status': true,
+              'body': (id == 0) ? results : results[0]
             });
           }
-          else res.json({
-            'status': true,
-            'body': (id == 0) ? results : results[0]
-          });
-        }
+        });
+        connection.release();
       });
+      
     }
     else res.json({
       'status': false,
@@ -56,34 +62,39 @@ module.exports = (connection) => {
 
     if(itunes_id && title && artist && genre && time && year) {
       var select_query = `select id from music where itunes_id=${itunes_id};`;
-      connection.query(select_query, function(error, results, fields) {
-        if(error) {
-          res.json('query error');
-        }
-        else {
-          if(results.length == 0) {
-            var query = `insert into music(itunes_id, title, artist, genre, time, year)\
-                        values(${itunes_id}, \"${title}\", \"${artist}\", \"${genre}\", ${time}, ${year});`;
-            connection.query(query, function(error, results, fields) {
-              if(error) {
-                res.json('query error');
-              }
-              else {
-                console.log(results.insertId);
-                res.json({
-                  'status': true
-                });
-              }
-            });
+
+      getConnection(function(connection) {
+        connection.query(select_query, function(error, results, fields) {
+          if(error) {
+            res.json('query error');
           }
           else {
-            res.json({
-              'status': false,
-              'log': 'already exists itunes_id'
-            });
+            if(results.length == 0) {
+              var query = `insert into music(itunes_id, title, artist, genre, time, year)\
+                          values(${itunes_id}, \"${title}\", \"${artist}\", \"${genre}\", ${time}, ${year});`;
+              connection.query(query, function(error, results, fields) {
+                if(error) {
+                  res.json('query error');
+                }
+                else {
+                  console.log(results.insertId);
+                  res.json({
+                    'status': true
+                  });
+                }
+              });
+            }
+            else {
+              res.json({
+                'status': false,
+                'log': 'already exists itunes_id'
+              });
+            }
           }
-        }
+        });
+        connection.release();
       });
+      
     }
     else res.json({
       'status': false,

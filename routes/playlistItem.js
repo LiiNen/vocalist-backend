@@ -6,8 +6,9 @@
  * [DELETE] playlist_id, music_id => delete
  */
 
-module.exports = (connection) => {
+module.exports = () => {
   var router = require('express').Router();
+  var getConnection = require('../connection');
 
   router.get('/:type?', (req, res) => {
     var playlist_id = req.query.playlist_id;
@@ -17,57 +18,72 @@ module.exports = (connection) => {
     if(type == 'part') target = 'music.id, music.title, music.artist';
 
     var query = `select ${target} from music where music.id in (select music_id from playlist_item as pi where pi.playlist_id=${playlist_id})`;
-    connection.query(query, function(error, results, fields) {
-      if(error) {
-        console.log(error);
-        res.json('query error');
-      }
-      else {
-        console.log(results);
-        res.json({
-          'status': true,
-          'body': results
-        });
-      }
+
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          console.log(error);
+          res.json('query error');
+        }
+        else {
+          console.log(results);
+          res.json({
+            'status': true,
+            'body': results
+          });
+        }
+      });
+      connection.release();
     });
+    
   });
 
   router.post('/', (req, res) => {
     var playlist_id = req.body.playlist_id;
     var music_id = req.body.music_id;
     var query = `insert into playlist_item(playlist_id, music_id) values(${playlist_id}, ${music_id})`;
-    connection.query(query, function(error, results, fields) {
-      if(error) {
-        console.log(error);
-        res.json('query error');
-      }
-      else {
-        console.log(results);
-        res.json({
-          'status': true,
-          'body': 'insert success'
-        });
-      }
+    
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          console.log(error);
+          res.json('query error');
+        }
+        else {
+          console.log(results);
+          res.json({
+            'status': true,
+            'body': 'insert success'
+          });
+        }
+      });
+      connection.release();
     });
+    
   });
 
   router.delete('/', (req, res) => {
     var playlist_id = req.body.playlist_id;
     var music_id = req.body.music_id;
     var query = `delete from playlist_item where playlist_id=${playlist_id} and music_id=${music_id}`;
-    connection.query(query, function(error, results, fields) {
-      if(error) {
-        console.log(error);
-        res.json('query error');
-      }
-      else {
-        console.log(results);
-        res.json({
-          'status': true,
-          'body': 'delete success'
-        });
-      }
+
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          console.log(error);
+          res.json('query error');
+        }
+        else {
+          console.log(results);
+          res.json({
+            'status': true,
+            'body': 'delete success'
+          });
+        }
+      });
+      connection.release();
     });
+    
   });
 
   return router;
