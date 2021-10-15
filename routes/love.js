@@ -18,7 +18,10 @@ module.exports = () => {
       connection.query(query, function(error, results, fields) {
         if(error) {
           console.log(error);
-          res.status(500);
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
         }
         else {
           res.json({
