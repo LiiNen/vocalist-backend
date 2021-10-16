@@ -1,7 +1,13 @@
 
 /**
  * /login
- * [GET] email, type => signin check
+ * @Column
+ * id(pk, int), email(String), name(String), type(String)
+ * 
+ * type
+ * google, apple
+ * 
+ * [GET] email, type => signup check (results['body']['exist'] for user existence)
  * [POST] email, name, type => signup action
  */
 
@@ -18,7 +24,10 @@ module.exports = () => {
       getConnection(function(connection) {
         connection.query(query, function(error, results, fields) {
           if(error) {
-            res.json('query error');
+            res.json({
+              'status': false,
+              'log': 'query error'
+            });
           }
           else {
             if(results.length == 0) {
@@ -59,7 +68,10 @@ module.exports = () => {
       getConnection(function(connection) {
         connection.query(query, function(error, results, fields) {
           if(error) {
-            res.json('query error');
+            res.json({
+              'status': false,
+              'log': 'query error'
+            });
           }
           else {
             res.json({

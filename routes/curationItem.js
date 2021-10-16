@@ -1,7 +1,7 @@
 
 /**
  * /curation/item
- * [GET] curation_id => get music(brief) list in curation
+ * [GET] (/:type?) curation_id => get music(brief(when type == part)) list in curation
  * [POST] curation_id, music_id => add one music to curation
  * [DELETE] curation_id, music_id => delete one music in curation
  * 
@@ -25,7 +25,10 @@ module.exports = () => {
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
         if(error) {
-          res.json('query error');
+          res.json({
+              'status': false,
+              'log': 'query error'
+            });
         }
         else {
           if(results.length == 0) {
@@ -54,7 +57,10 @@ module.exports = () => {
       connection.query(query, function(error, results, fields) {
         if(error) {
           console.log(error);
-          res.json('query error');
+          res.json({
+              'status': false,
+              'log': 'query error'
+            });
         }
         else {
           console.log(results);
@@ -114,11 +120,12 @@ module.exports = () => {
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
         if(error) {
-          console.log(error);
-          res.json('query error');
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
         }
         else {
-          console.log(results);
           res.json({
             'status': true,
             'body': 'delete success'

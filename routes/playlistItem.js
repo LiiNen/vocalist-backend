@@ -22,11 +22,12 @@ module.exports = () => {
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
         if(error) {
-          console.log(error);
-          res.json('query error');
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
         }
         else {
-          console.log(results);
           res.json({
             'status': true,
             'body': results
@@ -46,11 +47,12 @@ module.exports = () => {
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
         if(error) {
-          console.log(error);
-          res.json('query error');
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
         }
         else {
-          console.log(results);
           res.json({
             'status': true,
             'body': 'insert success'
@@ -70,11 +72,12 @@ module.exports = () => {
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
         if(error) {
-          console.log(error);
-          res.json('query error');
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
         }
         else {
-          console.log(results);
           res.json({
             'status': true,
             'body': 'delete success'

@@ -19,7 +19,10 @@ module.exports = () => {
         if(id != 0) query = `${query} where id=${id};`;
         connection.query(query, function(error, results, fields) {
           if(error) {
-            res.json('query error');
+            res.json({
+              'status': false,
+              'log': 'query error'
+            });
           }
           else {
             if(results.length == 0) {
@@ -36,7 +39,10 @@ module.exports = () => {
         })
       }
       else {
-        res.json('query error');
+        res.json({
+          'status': false,
+          'log': 'query error'
+        });
       }
       connection.release();
     });
@@ -48,11 +54,15 @@ module.exports = () => {
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
         if(error) {
-          res.json('query error');
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
         }
         else {
           res.json({
             'status': true,
+            'body': 'ctype add success'
           });
         }
       });
@@ -66,11 +76,15 @@ module.exports = () => {
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
         if(error) {
-          res.json('query error');
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
         }
         else {
           res.json({
             'status': true,
+            'body': 'ctype delete success'
           });
         }
       });

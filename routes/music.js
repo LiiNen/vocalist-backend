@@ -1,8 +1,10 @@
  /**
  * /music
- * [GET] /part for brieft musics
- * id, user_id, page, per_page => get music with user like, id 0 for get all music
+ * [GET] id, user_id => get music info with user like, id 0 for get all music
  * [POST] itunes_id, title, artist, genre, time, year => insert music if not in database(check itunes_id)
+ * 
+ * /music/list
+ * [GET] user_id, page, per_page => get music with user like
  */
 
 module.exports = () => {
@@ -25,7 +27,10 @@ module.exports = () => {
       getConnection(function(connection) {
         connection.query(query, function(error, results, fields) {
           if(error) {
-            res.json('query error');
+            res.json({
+              'status': false,
+              'log': 'query error'
+            });
           }
           else {
             if(results.length == 0) {
@@ -94,7 +99,6 @@ module.exports = () => {
           res.json(responsePayload);
         })
         .catch(function(error) {
-          console.log(error);
           res.json({
             'status': false,
             'log': 'catch error'
@@ -124,7 +128,10 @@ module.exports = () => {
       getConnection(function(connection) {
         connection.query(select_query, function(error, results, fields) {
           if(error) {
-            res.json('query error');
+            res.json({
+              'status': false,
+              'log': 'query error'
+            });
           }
           else {
             if(results.length == 0) {
@@ -132,7 +139,10 @@ module.exports = () => {
                           values(${itunes_id}, \"${title}\", \"${artist}\", \"${genre}\", ${time}, ${year});`;
               connection.query(query, function(error, results, fields) {
                 if(error) {
-                  res.json('query error');
+                  res.json({
+                    'status': false,
+                    'log': 'query error'
+                  });
                 }
                 else {
                   console.log(results.insertId);

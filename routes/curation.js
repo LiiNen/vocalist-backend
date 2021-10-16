@@ -1,6 +1,7 @@
 
 /**
  * /curation
+ * [GET] id => get curation data, id=0 for search all
  * [POST] title, content, ctype_id, music_id_list => create curation
  * [DELETE] id : delete curation
  */
@@ -17,8 +18,10 @@ module.exports = () => {
       if(id != 0) query = `${query} where id=${id}`;
       connection.query(query, function(error, results, fields) {
         if(error) {
-          console.log(error);
-          res.json('query error');
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
         }
         else {
           res.json({
@@ -45,8 +48,10 @@ module.exports = () => {
         getConnection(function(connection) {
           connection.query(query, function(error, results, fields) {
             if(error) {
-              console.log(error);
-              res.json('query error');
+              res.json({
+                'status': false,
+                'log': 'query error'
+              });
             }
             else {
               var count = 0;
@@ -57,7 +62,10 @@ module.exports = () => {
                 connection.query(query_item, function(error, results, fields) {
                   count+=1;
                   if(error && !res.headersSent) {
-                    res.json('query error');
+                    res.json({
+                      'status': false,
+                      'log': 'query error'
+                    });
                     connection.query(`delete from curation where id=${curation_id};`);
                     connection.query(`delete from curation_item where curation_id=${curation_id};`);
                   }
@@ -80,7 +88,6 @@ module.exports = () => {
         'log': 'wrong request body name'
       });
     } catch(e) {
-      console.log(e);
       res.json({
         'status': false,
         'log': 'try catch error'
@@ -96,16 +103,23 @@ module.exports = () => {
     getConnection(function(connection) {
       connection.query(queryCurationItem, function(error, results, fields) {
         if(error) {
-          res.json('query curationItem error');
+          res.json({
+            'status': false,
+            'log': 'try catch error'
+          });
         }
         else {
           connection.query(queryCuration, function(error, results, fields) {
             if(error) {
-              res.json('query curation error');
+              res.json({
+                'status': false,
+                'log': 'try catch error'
+              });
             }
             else {
               res.json({
-                  'status': true
+                'status': true,
+                'body': 'delete success'
               });
             }
           });

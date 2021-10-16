@@ -1,6 +1,10 @@
 
 /**
  * /love
+ * @Column
+ * music_id, user_id
+ * if pair exists, then the user likes the music
+ * 
  * [POST] music_id, user_id => like music
  * [DELETE] music_id, user_id => dislike music
  */
@@ -44,7 +48,10 @@ module.exports = () => {
       connection.query(query, function(error, results, fields) {
         if(error) {
           console.log(error);
-          res.json('query error');
+          res.json({
+              'status': false,
+              'log': 'query error'
+            });
         }
         else {
           console.log(results);

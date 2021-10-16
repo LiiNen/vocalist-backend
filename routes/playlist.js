@@ -19,14 +19,15 @@ module.exports = () => {
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
         if(error) {
-          console.log(error);
-          res.json('query error');
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
         }
         else {
-          console.log(results);
           res.json({
-              'status': true,
-              'body': results
+            'status': true,
+            'body': results
           });
         }
       });
@@ -44,14 +45,16 @@ module.exports = () => {
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
         if(error) {
-          console.log(error);
-          res.json('query error');
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
         }
         else {
           console.log(results);
           res.json({
-              'status': true,
-              'body': 'insert success'
+            'status': true,
+            'body': 'insert success'
           });
         }
       });
@@ -68,16 +71,23 @@ module.exports = () => {
     getConnection(function(connection) {
       connection.query(queryPlaylistItem, function(error, results, fields) {
         if(error) {
-          res.json('query playlistItem error');
+          res.json({
+            'status': false,
+            'log': 'query playlistItem error'
+          });
         }
         else {
           connection.query(queryPlaylist, function(error, results, fields) {
             if(error) {
-              res.json('query playlist error');
+              res.json({
+                'status': false,
+                'log': 'query playlist error'
+              });
             }
             else {
               res.json({
-                'status': true
+                'status': true,
+                'body': 'delete playlist success'
               });
             }
           });
@@ -97,15 +107,19 @@ module.exports = () => {
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
         if(error) {
-          console.log(error);
-          res.json('error');
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
         }
         else {
           var query_item = `insert into playlist_item(playlist_id, music_id) select ${results.insertId}, music_id from curation_item where curation_id=${curation_id};`;
           connection.query(query_item, function(error, results, fields) {
             if(error) {
-              console.log(error);
-              res.json('error in item');
+              res.json({
+                'status': false,
+                'log': 'query error'
+              });
             }
             else {
               res.json({

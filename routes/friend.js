@@ -3,6 +3,7 @@
  * /friend
  * [GET] user_id => get friends list(id, name)
  * [POST] user_id, email => add friend state (user_id for apply, email for response user)
+ * [PATH] id => friend accept
  */
 
 module.exports = () => {
@@ -20,11 +21,12 @@ module.exports = () => {
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
         if(error) {
-          console.log(error);
-          res.json('query error');
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
         }
         else {
-          console.log(results);
           res.json({
             'status': true,
             'body': results
@@ -43,11 +45,12 @@ module.exports = () => {
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
         if(error) {
-          console.log(error);
-          res.json('query error');
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
         }
         else {
-          console.log(results);
           res.json({
             'status': true,
             'body': 'friend apply success'
