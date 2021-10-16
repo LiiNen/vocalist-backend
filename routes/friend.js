@@ -1,8 +1,18 @@
 
 /**
  * /friend
+ * 
+ * @Column
+ * user_id_apply(int), user_id_response(int), accept(bool)
+ * 
+ * accept
+ * 0 for not accepted yet
+ * 1 for accepted (two users are friend)
+ * delete the row for deletion friendship or denying
+ * 
  * [GET] user_id => get friends list(id, name)
  * [POST] user_id, email => add friend state (user_id for apply, email for response user)
+ * [DELETE] id => friend deny
  * [PATH] id => friend accept
  */
 
