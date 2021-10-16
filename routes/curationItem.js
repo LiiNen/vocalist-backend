@@ -7,6 +7,7 @@
  * 
  * /curation/item/list
  * [POST] curation_id, music_id_list => add musics to curation
+ * [DELETE] curation_id, music_id_list => delete musics to curation
  */
 
 module.exports = () => {
@@ -80,7 +81,7 @@ module.exports = () => {
     var count = 0;
     if(music_id_list.length == 0) {
       res.json({
-        'status': true,
+        'status': false,
         'log': 'no items in music_id_list'
       });
     }
@@ -102,7 +103,7 @@ module.exports = () => {
           else if(!res.headersSent && count == music_id_list.length) {
             res.json({
               'status': true,
-              'log': 'curation insertion success'
+              'log': 'curation items insertion success'
             });
           }
         });
@@ -134,6 +135,44 @@ module.exports = () => {
       });
       connection.release();
     });
+  });
+
+  router.delete('/list', (req, res) => {
+    var curation_id = req.body.curation_id;
+    var music_id_list = req.body.music_id_list;
+    var count = 0;
+    if(music_id_list.length == 0) {
+      res.json({
+        'status': false,
+        'log': 'no items in music_id_list'
+      });
+    }
+    for(var i = 0; i < music_id_list.length; i++) {
+      var query = `delete from curation_item where music_id = ${music_id_list[i]}`;
+      count += 1;
+
+      getConnection(function(connection) {
+        connection.query(query, function(error, results, fields) {
+          if(error && !res.headersSent) {
+            res.json({
+              'status': false,
+              'log': 'music_id_list type error'
+            });
+            for(var j = 0; j < i; j++) {
+              connection.query(`insert into curation_item(curation_id, music_id) values(${curation_id}, ${music_id_list[j]})`);
+            }
+          }
+          else if(!res.headersSent && count == music_id_list.length) {
+            res.json({
+              'status': true,
+              'log': 'curation items deletion success'
+            });
+          }
+        });
+        connection.release();
+      });
+
+    }
   });
 
   return router;
