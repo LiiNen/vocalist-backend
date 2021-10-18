@@ -49,9 +49,9 @@ module.exports = () => {
         if(error) {
           console.log(error);
           res.json({
-              'status': false,
-              'log': 'query error'
-            });
+            'status': false,
+            'log': 'query error'
+          });
         }
         else {
           console.log(results);
@@ -64,6 +64,30 @@ module.exports = () => {
       connection.release();
     });
     
+  });
+
+  router.get('/count', (req, res) => {
+    var user_id = req.query.user_id;
+    var query = `select count(*) as count from love where user_id=${user_id}`;
+
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          console.log(error);
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': results[0]
+          });
+        }
+      });
+      connection.release();
+    });
   });
   
   return router;

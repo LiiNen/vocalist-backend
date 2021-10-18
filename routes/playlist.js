@@ -14,7 +14,10 @@ module.exports = () => {
 
   router.get('/', (req, res) => {
     var user_id = req.query.user_id;
-    var query = `select id, title from playlist where user_id=${user_id}`;
+    var query = `select count(music_id) as count, id, title
+                from playlist, playlist_item
+                where user_id=${user_id} and playlist.id=playlist_item.playlist_id
+                group by id`;
 
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
@@ -133,6 +136,30 @@ module.exports = () => {
       connection.release();
     });
     
+  });
+
+  router.get('/count', (req, res) => {
+    var user_id = req.query.user_id;
+    var query = `select count(*) as count from playlist where user_id=${user_id}`;
+
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': results[0]
+          });
+        }
+      });
+      connection.release();
+    });
+
   });
 
   return router;

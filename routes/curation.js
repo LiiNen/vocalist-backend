@@ -14,8 +14,11 @@ module.exports = () => {
     var id = req.query.id;
     
     getConnection(function(connection) {
-      var query = `select * from curation`;
-      if(id != 0) query = `${query} where id=${id}`;
+      var query = `select count(music_id) as count, id, title, content, ctype_id
+                  from curation, curation_item
+                  where curation_item.curation_id=curation.id
+                  group by id`;
+      if(id != 0) query = `${query} and id=${id}`;
       connection.query(query, function(error, results, fields) {
         if(error) {
           res.json({
