@@ -11,13 +11,26 @@ module.exports = () => {
   var getConnection = require('../connection');
 
   router.get('/:type?', (req, res) => {
-    var playlist_id = req.query.playlist_id;
-
     var type = req.params.type;
     var target = '*';
     if(type == 'part') target = 'music.id, music.title, music.artist';
 
-    var query = `select ${target} from music where music.id in (select music_id from playlist_item as pi where pi.playlist_id=${playlist_id})`;
+    var playlist_id = req.query.playlist_id;
+    var user_id = req.query.user_id;
+
+    var query;
+    if(user_id == undefined) {
+      query = `select ${target} from music \
+                  where music.id in (select music_id from playlist_item where playlist_id=${playlist_id})`;
+    }
+    else {
+      query = `select distinct ${target},
+                case when exists(select id from love where user_id=${user_id} and music_id=music.id)
+                then 1 else 0
+                end as islike
+              from music\
+              where music.id in (select music_id from playlist_item where playlist_id = ${playlist_id});`;
+    }
 
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {

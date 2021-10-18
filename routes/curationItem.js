@@ -20,29 +20,42 @@ module.exports = () => {
     if(type == 'part') target = 'music.id, music.title, music.artist';
 
     var curation_id = req.query.curation_id;
-    var query = `select ${target} from music\
-                where music.id in (select music_id from curation_item where curation_id = ${curation_id});`;
+    var user_id = req.query.user_id;
+
+    var query;
+    if(user_id == undefined) {
+      query = `select ${target} from music\
+              where music.id in (select music_id from curation_item where curation_id = ${curation_id});`;
+    }
+    else {
+      query = `select distinct ${target},
+                case when exists(select id from love where user_id=${user_id} and music_id=music.id)
+                then 1 else 0
+                end as islike
+              from music\
+              where music.id in (select music_id from curation_item where curation_id = ${curation_id});`;
+    }
     
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
         if(error) {
           res.json({
-              'status': false,
-              'log': 'query error'
-            });
+            'status': false,
+            'log': 'query error'
+          });
         }
         else {
           if(results.length == 0) {
             res.json({
               'status': false,
               'log': `no music in curation id ${id}`
-            })
+            });
           }
           else {
             res.json({
               'status': true,
               'body': results
-            })
+            });
           }
         }
       });
