@@ -126,30 +126,6 @@ module.exports = () => {
     }
   });
 
-  router.delete('/', (req, res) => {
-    var curation_id = req.body.curation_id;
-    var music_id = req.body.music_id;
-    var query = `delete from curation_item where curation_id=${curation_id} and music_id=${music_id}`;
-
-    getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
-        if(error) {
-          res.json({
-            'status': false,
-            'log': 'query error'
-          });
-        }
-        else {
-          res.json({
-            'status': true,
-            'body': 'delete success'
-          });
-        }
-      });
-      connection.release();
-    });
-  });
-
   router.delete('/list', (req, res) => {
     var curation_id = req.body.curation_id;
     var music_id_list = req.body.music_id_list;
@@ -185,6 +161,66 @@ module.exports = () => {
         connection.release();
       });
 
+    }
+  });
+
+  router.patch('/list', (req, res) => {
+    var curation_id = req.body.curation_id;
+    var insert_list = req.body.insert_list;
+    var delete_list = req.body.delete_list;
+    var insertCount = 0;
+    var deleteCount = 0;
+    if(insert_list.length == 0 && delete_list.length == 0) {
+      res.json({
+        'status': false,
+        'log': 'no items in both insert and delete list'
+      });
+    }
+    for(var i = 0; i < insert_list.length; i++) {
+      console.log(insert_list, insert_list[i]);
+      let insertQuery = `insert into curation_item(curation_id, music_id) values(${curation_id}, ${insert_list[i]})`;
+      insertCount += 1;
+
+      getConnection(function(connection) {
+        connection.query(insertQuery, function(error, results, fields) {
+          if(error && !res.headersSent) {
+            res.json({
+              'status': false,
+              'log': 'insert list type error'
+            });
+          }
+          else if(!res.headersSent && insertCount == insert_list.length && deleteCount == delete_list.length) {
+            res.json({
+              'status': true,
+              'log': 'curation items change success'
+            });
+          }
+        });
+        connection.release();
+      });
+
+    }
+    for(var j = 0; j < delete_list.length; j++) {
+      let deleteQuery = `delete from curation_item where curation_id=${curation_id} and music_id=${delete_list[j]}`;
+      deleteCount += 1;
+
+      getConnection(function(connection) {
+        connection.query(deleteQuery, function(error, results, fields) {
+          if(error && !res.headersSent) {
+            res.json({
+              'status': false,
+              'log': 'delete list type error'
+            });
+          }
+          else if(!res.headersSent && insertCount == insert_list.length && deleteCount == delete_list.length) {
+            res.json({
+              'status': true,
+              'log': 'curation items change success'
+            });
+          }
+        });
+        connection.release();
+      });
     }
   });
 
