@@ -15,8 +15,9 @@ module.exports = () => {
   router.get('/', (req, res) => {
     var user_id = req.query.user_id;
     var query = `select count(music_id) as count, id, title
-                from playlist, playlist_item
-                where user_id=${user_id} and playlist.id=playlist_item.playlist_id
+                from playlist
+                left join playlist_item on playlist.id=playlist_item.playlist_id
+                where user_id=${user_id}
                 group by id`;
 
     getConnection(function(connection) {
