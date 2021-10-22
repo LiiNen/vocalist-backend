@@ -48,6 +48,9 @@ app.use('/friend', friend);
 var user = require('./routes/user')();
 app.use('/user', user);
 
+var bugReport = require('./routes/bugReport')();
+app.use('/bug/report', bugReport);
+
 // start server
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
