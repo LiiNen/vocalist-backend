@@ -45,6 +45,9 @@ app.use('/ctype', ctype);
 var friend = require('./routes/friend')();
 app.use('/friend', friend);
 
+var user = require('./routes/user')();
+app.use('/user', user);
+
 // start server
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
