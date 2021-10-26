@@ -52,5 +52,29 @@ module.exports = () => {
     
   });
 
+  router.delete('/', (req, res) => {
+    var id = req.body.id;
+
+    var query = `delete from bug_report where id = ${id}`;
+
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': 'delete succes'
+          })
+        }
+      });
+      connection.release();
+    });
+  });
+
   return router;
 }
