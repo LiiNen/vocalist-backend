@@ -22,11 +22,11 @@ module.exports = () => {
 
   router.get('/', (req, res) => {
     var user_id = req.query.user_id;
-    var query = `select id, friend_id, accept from (
+    var query = `select friend_list.id, name, friend_id, accept from
                   (select id, user_id_response as friend_id, accept from friend where user_id_apply=${user_id}
                   union
                   select id, user_id_apply as friend_id, accept from friend where user_id_response=${user_id})
-                as friend_list);`;
+                as friend_list, user where user.id=friend_list.friend_id;`;
 
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
