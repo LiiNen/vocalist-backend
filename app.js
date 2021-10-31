@@ -49,7 +49,7 @@ var user = require('./routes/user')();
 app.use('/user', user);
 
 var bugReport = require('./routes/bugReport')();
-app.use('/bug/report', bugReport);
+app.use('/bug', bugReport);
 
 // start server
 app.listen(port, () => {
