@@ -14,7 +14,7 @@ module.exports = () => {
 
   router.get('/', (req, res) => {
     var user_id = req.query.user_id;
-    var query = `select count(music_id) as count, id, title
+    var query = `select count(music_id) as count, id, title, emoji
                 from playlist
                 left join playlist_item on playlist.id=playlist_item.playlist_id
                 where user_id=${user_id}
@@ -44,7 +44,8 @@ module.exports = () => {
     var user_id = req.body.user_id;
     var title = req.body.title;
     var visible = req.body.visible;
-    var query = `insert into playlist(user_id, title, visible) values(${user_id},\"${title}\",${visible})`;
+    var emoji = req.body.emoji;
+    var query = `insert into playlist(user_id, title, visible, emoji) values(${user_id},\"${title}\",${visible}, \"${emoji}\")`;
 
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {

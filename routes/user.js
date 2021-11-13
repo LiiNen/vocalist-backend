@@ -26,34 +26,14 @@ module.exports = () => {
     });
   });
 
-  router.post('/', (req, res) => {
-    var emoji = req.body.emoji;
-    var query = `insert into user(email, name, type, emoji) values("test@ac.kr", "test", "google", \"${emoji}\")`;
-
-    getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
-        if(error) {
-          console.log(error);
-          res.json({
-            'status': false,
-            'log': 'query error'
-          });
-        }
-        else {
-          res.json({
-            'status': true,
-            'body': 'select fin'
-          })
-        }
-      });
-      connection.release();
-    });
-  });
-
   router.patch('/', (req, res) => {
     var id = req.body.id;
     var name = req.body.name;
-    var query = `update user set name = \"${name}\" where id = ${id}`;
+    var emoji = req.body.emoji;
+    var nameQuery = name != '' ? 'name = \"${name}\"' : '';
+    var emojiQuery = emoji != '' ? 'emoji = \"${emoji}\"' : '';
+    var andQuery = nameQuery != '' && emojiQuery != '' ? ', ' : ''
+    var query = `update user set ${nameQuery}${andQuery}${emojiQuery} where id = ${id}`;
 
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
