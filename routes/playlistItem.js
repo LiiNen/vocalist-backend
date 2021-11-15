@@ -55,7 +55,10 @@ module.exports = () => {
   router.post('/', (req, res) => {
     var playlist_id = req.body.playlist_id;
     var music_id = req.body.music_id;
-    var query = `insert into playlist_item(playlist_id, music_id) values(${playlist_id}, ${music_id})`;
+    var query = `insert into playlist_item(playlist_id, music_id) \
+                select ${playlist_id}, ${music_id} from dual \
+                where not exists \
+                (select * from playlist_item where playlist_id=${playlist_id} and music_id=${music_id})`;
     
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
