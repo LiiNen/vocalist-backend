@@ -115,9 +115,9 @@ module.exports = () => {
   });
 
   router.patch('/list/pitch', (req, res) => {
-    var user_id = req.query.user_id;
-    var music_id = req.query.music_id;
-    var pitch = req.query.pitch;
+    var user_id = req.body.user_id;
+    var music_id = req.body.music_id;
+    var pitch = req.body.pitch;
     var query = `update love set pitch = ${pitch} where user_id=${user_id} and music_id=${music_id};`;
 
     getConnection(function(connection) {
