@@ -27,5 +27,29 @@ module.exports = () => {
     });
   });
 
+  router.patch('/music/cluster', (req, res) => {
+    var itunes_id = req.body.itunes_id;
+    var cluster = req.body.cluster;
+    
+    var query = `update music set cluster = ${cluster} where itunes_id=${itunes_id}`;
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': results
+          });
+        }
+      });
+      connection.release();
+    });
+  });
+
   return router;
 }

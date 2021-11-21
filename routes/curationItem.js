@@ -17,7 +17,7 @@ module.exports = () => {
   router.get('/:type?', (req, res) => {
     var type = req.params.type;
     var target = '*';
-    if(type == 'part') target = 'music.id, music.title, music.artist, music.number';
+    if(type == 'part') target = 'music.id, music.title, music.artist, music.number, music.cluster';
 
     var curation_id = req.query.curation_id;
     var user_id = req.query.user_id;

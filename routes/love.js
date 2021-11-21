@@ -92,7 +92,7 @@ module.exports = () => {
 
   router.get('/list', (req, res) => {
     var user_id = req.query.user_id;
-    var target = 'music.id, music.title, music.artist, 1 as islike, love.pitch, music.number';
+    var target = 'music.id, music.title, music.artist, 1 as islike, love.pitch, music.number, music.cluster';
     var query = `select ${target} from music, love where music.id = love.music_id and love.user_id = ${user_id}`;
 
     getConnection(function(connection) {

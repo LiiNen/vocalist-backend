@@ -60,7 +60,7 @@ module.exports = () => {
     var page = req.query.page;
     var per_page = req.query.per_page;
     
-    var target = 'music.id, music.title, music.artist';
+    var target = 'music.id, music.title, music.artist, music.cluster, music.number';
 
     if(user_id && page && per_page) {
       var query = `select distinct ${target},
@@ -142,6 +142,34 @@ module.exports = () => {
   });
 
   router.get('/rec/cluster', (req, res) => {
+    var cluster = req.query.cluster;
+    var user_id = req.query.user_id;
+    var query = `select *,
+                  case when exists(select id from love where user_id=${user_id} and music_id=music.id)
+                  then 1 else 0
+                  end as islike
+                from music where number is not null and cluster=${cluster}`;
+
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': results
+          });
+        }
+      });
+      connection.release();
+    });
+  });
+
+  router.get('/rec/love', (req, res) => {
     var cluster = req.query.cluster;
     var user_id = req.query.user_id;
     var query = `select *,
