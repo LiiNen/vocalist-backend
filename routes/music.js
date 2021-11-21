@@ -114,6 +114,61 @@ module.exports = () => {
     });
   });
 
+  router.get('/rec', (req, res) => {
+    var user_id = req.query.user_id;
+    var query = `select *,
+                  case when exists(select id from love where user_id=${user_id} and music_id=music.id)
+                  then 1 else 0
+                  end as islike
+                from music where number is not null`;
+
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': results
+          });
+        }
+      });
+      connection.release();
+    });
+  });
+
+  router.get('/rec/cluster', (req, res) => {
+    var cluster = req.query.cluster;
+    var user_id = req.query.user_id;
+    var query = `select *,
+                  case when exists(select id from love where user_id=${user_id} and music_id=music.id)
+                  then 1 else 0
+                  end as islike
+                from music where number is not null and cluster=${cluster}`;
+
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': results
+          });
+        }
+      });
+      connection.release();
+    });
+  });
+
   router.post('/', (req, res) => {
     var itunes_id = req.body.itunes_id;
     var title = req.body.title;
