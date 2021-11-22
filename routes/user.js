@@ -30,10 +30,9 @@ module.exports = () => {
     var id = req.body.id;
     var name = req.body.name;
     var emoji = req.body.emoji;
-    var nameQuery = name != '' ? 'name = \"${name}\"' : '';
-    var emojiQuery = emoji != '' ? 'emoji = \"${emoji}\"' : '';
-    var andQuery = nameQuery != '' && emojiQuery != '' ? ', ' : ''
-    var query = `update user set ${nameQuery}${andQuery}${emojiQuery} where id = ${id}`;
+    var nameQuery = `name = \"${name}\"`;
+    var emojiQuery = `emoji = \"${emoji}\"`;
+    var query = `update user set ${nameQuery}, ${emojiQuery} where id = ${id}`;
 
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
