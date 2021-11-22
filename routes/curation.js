@@ -37,6 +37,32 @@ module.exports = () => {
     });
   });
 
+  router.get('/ctype', (req, res) => {
+    var ctype_id = req.query.ctype_id;
+    
+    getConnection(function(connection) {
+      var query = `select count(music_id) as count, id, title, content, ctype_id
+                  from curation, curation_item
+                  where curation_item.curation_id=curation.id and ctype_id=${ctype_id}
+                  group by id`;
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': results
+          });
+        }
+      });
+      connection.release();
+    });
+  });
+
   router.post('/', (req, res) =>  {
     var title = req.body.title;
     var content = req.body.content;
