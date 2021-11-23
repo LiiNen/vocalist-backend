@@ -51,5 +51,29 @@ module.exports = () => {
     });
   });
 
+  router.patch('/music/interval', (req, res) => {
+    var itunes_id = req.body.itunes_id;
+    var interval = req.body.interval;
+    
+    var query = `update music set interval = ${interval} where itunes_id=${itunes_id}`;
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': results
+          });
+        }
+      });
+      connection.release();
+    });
+  });
+
   return router;
 }
