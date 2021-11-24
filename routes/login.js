@@ -19,7 +19,7 @@ module.exports = () => {
     var email = req.query.email;
     var type = req.query.type;
     if(email && type) {
-      var query = `select * from user where email=\"${email}\"and type=\"${type}\";`;
+      var query = `select * from user where email=\"${email}\";`;
       
       getConnection(function(connection) {
         connection.query(query, function(error, results, fields) {
