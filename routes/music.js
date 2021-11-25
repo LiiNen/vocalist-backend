@@ -114,6 +114,36 @@ module.exports = () => {
     });
   });
 
+  router.get('/chart', (req, res) => {
+    var user_id = req.query.user_id;
+
+    var target = 'music.id, music.title, music.artist, music.cluster, music.number, music.chart';
+    var query = `select distinct ${target},
+                  case when exists(select id from love where user_id=${user_id} and music_id=music.id)
+                  then 1 else 0
+                  end as islike
+                from music
+                where music.chart is not null
+                order by music.chart`;
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': results
+          });
+        }
+      });
+      connection.release();
+    });
+  });
+
   router.get('/rec', (req, res) => {
     var user_id = req.query.user_id;
     var query = `select *,

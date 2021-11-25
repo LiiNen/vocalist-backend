@@ -75,5 +75,92 @@ module.exports = () => {
     });
   });
 
+  router.patch('/music/chart', (req, res) => {
+    var query = `update music set chart=NULL`;
+
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': 'success initializing'
+          });
+        }
+      });
+      connection.release();
+    })
+  });
+
+  router.post('/music/chart', (req, res) => {
+    var title = req.body.title;
+    var artist = req.body.artist;
+    var number = req.body.number;
+    var chart = req.body.chart;
+
+    var getQuery = `select 1 from music where number=${number}`;
+    var patchQuery = `update music set chart=${chart} where number=${number}`;
+    var postQuery = `insert into music(itunes_id, title, artist, number, chart)
+                    values(-1, \"${title}\", \"${artist}\", ${number}, ${chart})`;
+    getConnection(function(connection) {
+      connection.query(getQuery, function(error, results, fields) {
+        if(error) {
+          console.log(error);
+          res.json({
+            'status': false,
+            'log': 'query error',
+          });
+        }
+        else {
+          if(results.length != 0) {
+            getConnection(function(patchConnection) {
+              patchConnection.query(patchQuery, function(error, results, fields) {
+                if(error) {
+                  res.json({
+                    'status': false,
+                    'log': 'patch error'
+                  });
+                }
+                else {
+                  res.json({
+                    'status': true,
+                    'body': 'patch'
+                  });
+                }
+              });
+              patchConnection.release();
+            });
+          }
+          else {
+            getConnection(function(postConnection) {
+              postConnection.query(postQuery, function(error, results, fields) {
+                if(error) {
+                  console.log(error)
+                  res.json({
+                    'status': false,
+                    'log': 'post error'
+                  });
+                }
+                else {
+                  res.json({
+                    'status': true,
+                    'body': 'post'
+                  });
+                }
+              });
+              postConnection.release();
+            });
+          }
+        }
+      });
+      connection.release();
+    });
+  });
+
   return router;
 }
