@@ -79,7 +79,7 @@ module.exports = () => {
   router.get('/curation', (req, res) => {
     var input = req.query.input;
 
-    var query = `select * from curation where title like '%${input}%' or content like '%${input}%'`;
+    var query = `select * from curation where (title like '%${input}%' or content like '%${input}%') and demo_type is null`;
 
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {

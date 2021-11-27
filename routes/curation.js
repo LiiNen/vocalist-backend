@@ -44,7 +44,7 @@ module.exports = () => {
     getConnection(function(connection) {
       var query = `select count(music_id) as count, id, title, content, ctype_id
                   from curation, curation_item
-                  where curation_item.curation_id=curation.id and ctype_id=${ctype_id}
+                  where curation_item.curation_id=curation.id and ctype_id=${ctype_id} and demo_type is null
                   group by id`;
       connection.query(query, function(error, results, fields) {
         if(error) {
