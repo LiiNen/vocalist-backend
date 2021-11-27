@@ -79,33 +79,26 @@ module.exports = () => {
   router.get('/curation', (req, res) => {
     var input = req.query.input;
 
-    if(user_id) {
-      var query = `select * from curation where title like '%${input}%`;
+    var query = `select * from curation where title like '%${input}%`;
 
-      getConnection(function(connection) {
-        connection.query(query, function(error, results, fields) {
-          if(error) {
-            res.json({
-              'status': false,
-              'log': 'query error'
-            });
-          }
-          else {
-            res.json({
-              'status': true,
-              'body': results
-            });
-          }
-        });
-        connection.release();
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': results
+          });
+        }
       });
-
-    }
-    else res.json({
-      'status': false,
-      'log': 'wrong request param error'
+      connection.release();
     });
   });
-
+  
   return router;
 }
