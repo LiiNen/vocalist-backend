@@ -51,11 +51,11 @@ module.exports = () => {
     });
   });
 
-  router.patch('/music/interval', (req, res) => {
+  router.patch('/music/frequency', (req, res) => {
     var itunes_id = req.body.itunes_id;
-    var interval = req.body.interval;
+    var frequency = req.body.interval;
     
-    var query = `update music set interval = ${interval} where itunes_id=${itunes_id}`;
+    var query = `update music set frequency=${frequency} where itunes_id=${itunes_id}`;
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
         if(error) {
