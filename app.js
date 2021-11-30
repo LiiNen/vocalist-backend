@@ -60,6 +60,9 @@ app.use('/dev', dev);
 var version = require('./routes/version')();
 app.use('/version', version);
 
+var policy = require('./routes/policy')();
+app.use('/policy', policy);
+
 // start server
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)

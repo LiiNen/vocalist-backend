@@ -51,11 +51,11 @@ module.exports = () => {
     });
   });
 
-  router.patch('/music/interval', (req, res) => {
+  router.patch('/music/frequency', (req, res) => {
     var itunes_id = req.body.itunes_id;
-    var interval = req.body.interval;
+    var frequency = req.body.frequency;
     
-    var query = `update music set interval = ${interval} where itunes_id=${itunes_id}`;
+    var query = `update music set frequency=${frequency} where itunes_id=${itunes_id}`;
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
         if(error) {
@@ -183,6 +183,34 @@ module.exports = () => {
               postConnection.release();
             });
           }
+        }
+      });
+      connection.release();
+    });
+  });
+
+  router.get('/demo', (req, res) => {
+    var id = req.query.id;
+    
+    getConnection(function(connection) {
+      var query = `select count(music_id) as count, id, title, content, ctype_id
+                  from curation, curation_item
+                  where curation_item.curation_id=curation.id and demo_type is not null
+                  `;
+      if(id != 0) query = `${query} and id=${id}`;
+      query = `${query} group by id;`;
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': results
+          });
         }
       });
       connection.release();
