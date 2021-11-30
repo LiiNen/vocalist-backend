@@ -75,6 +75,30 @@ module.exports = () => {
     });
   });
 
+  router.patch('/music/youtube', (req, res) => {
+    var code=req.body.code;
+    var id=req.body.id;
+    var query = `update music set youtube=\'${code}\' where id=${id}`;
+
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': results
+          });
+        }
+      });
+      connection.release();
+    });
+  });
+
   router.patch('/music/chart', (req, res) => {
     var query = `update music set chart=NULL`;
 
@@ -105,8 +129,11 @@ module.exports = () => {
 
     var getQuery = `select 1 from music where number=${number}`;
     var patchQuery = `update music set chart=${chart} where number=${number}`;
-    var postQuery = `insert into music(itunes_id, title, artist, number, chart)
-                    values(-1, \"${title}\", \"${artist}\", ${number}, ${chart})`;
+    var postQuery;
+    if(chart == -1) postQuery = `insert into music(itunes_id, title, artist, number)
+                                values(-1, \"${title}\", \"${artist}\", ${number})`;
+    else postQuery = `insert into music(itunes_id, title, artist, number, chart)
+                      values(-1, \"${title}\", \"${artist}\", ${number}, ${chart})`;
     getConnection(function(connection) {
       connection.query(getQuery, function(error, results, fields) {
         if(error) {
@@ -117,7 +144,7 @@ module.exports = () => {
           });
         }
         else {
-          if(results.length != 0) {
+          if(results.length != 0 && chart != -1) {
             getConnection(function(patchConnection) {
               patchConnection.query(patchQuery, function(error, results, fields) {
                 if(error) {

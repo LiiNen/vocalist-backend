@@ -57,6 +57,9 @@ app.use('/search', search);
 var dev = require('./routes/dev')();
 app.use('/dev', dev);
 
+var version = require('./routes/version')();
+app.use('/version', version);
+
 // start server
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)

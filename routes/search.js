@@ -80,7 +80,7 @@ module.exports = () => {
     var input = req.query.input;
 
     if(user_id) {
-      var query = `select * from curation where title like '%${input}%`;
+      var query = `select * from curation where title like \'%${input}%\' or content like \'%${input}%\'`;
 
       getConnection(function(connection) {
         connection.query(query, function(error, results, fields) {
