@@ -53,7 +53,7 @@ module.exports = () => {
 
   router.patch('/music/frequency', (req, res) => {
     var itunes_id = req.body.itunes_id;
-    var frequency = req.body.interval;
+    var frequency = req.body.frequency;
     
     var query = `update music set frequency=${frequency} where itunes_id=${itunes_id}`;
     getConnection(function(connection) {
