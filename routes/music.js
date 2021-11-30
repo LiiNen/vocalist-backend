@@ -146,11 +146,7 @@ module.exports = () => {
 
   router.get('/rec', (req, res) => {
     var user_id = req.query.user_id;
-    var query = `select *,
-                  case when exists(select id from love where user_id=${user_id} and music_id=music.id)
-                  then 1 else 0
-                  end as islike
-                from music where number is not null`;
+    var query = `select id, title, artist, number from music where number is not null order by rand() limit 30`;
 
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
