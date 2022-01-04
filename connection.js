@@ -10,6 +10,6 @@ function getConnection(callback) {
       return;
     }
   });
-};
+}
 
 module.exports = getConnection;

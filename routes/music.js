@@ -10,11 +10,14 @@
 module.exports = () => {
   var router = require('express').Router();
   var getConnection = require('../connection');
+  var getObject = require('../object');
   var Promise = require('bluebird');
   
   router.get('/', (req, res) => {
     var id = req.query.id;
     var user_id = req.query.user_id;
+    console.log(getObject(0));
+    console.log(getObject(1));
 
     if(id && user_id) {
       var query = `select distinct *,

@@ -75,6 +75,28 @@ module.exports = () => {
     });
   });
 
+  router.get('/music/youtube', (req, res) => {
+    var query = `select id, title, artist from music where youtube is null`;
+
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': results
+          });
+        }
+      });
+      connection.release();
+    });
+  });
+
   router.patch('/music/youtube', (req, res) => {
     var code=req.body.code;
     var id=req.body.id;
