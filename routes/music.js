@@ -63,10 +63,10 @@ module.exports = () => {
     var page = req.query.page;
     var per_page = req.query.per_page;
     
-    var target = 'music.id, music.title, music.artist, music.cluster, music.number';
+    var object = getObject('list');
 
     if(user_id && page && per_page) {
-      var query = `select distinct ${target},
+      var query = `select distinct ${object},
                     case when exists(select id from love where user_id=${user_id} and music_id=music.id)
                     then 1 else 0
                     end as islike
@@ -120,8 +120,8 @@ module.exports = () => {
   router.get('/chart', (req, res) => {
     var user_id = req.query.user_id;
 
-    var target = 'music.id, music.title, music.artist, music.cluster, music.number, music.chart';
-    var query = `select distinct ${target},
+    var object = getObject('chart');
+    var query = `select distinct ${object},
                   case when exists(select id from love where user_id=${user_id} and music_id=music.id)
                   then 1 else 0
                   end as islike

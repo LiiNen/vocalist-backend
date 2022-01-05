@@ -11,10 +11,12 @@
 module.exports = () => {
   var router = require('express').Router();
   var getConnection = require('../connection');
+  var getObject = require('../object');
 
   router.get('/', (req, res) => {
     var user_id = req.query.user_id;
-    var query = `select count(music_id) as count, id, title, emoji
+    var object = getObject('playlist');
+    var query = `select ${object}
                 from playlist
                 left join playlist_item on playlist.id=playlist_item.playlist_id
                 where user_id=${user_id}

@@ -9,12 +9,14 @@
 module.exports = () => {
   var router = require('express').Router();
   var getConnection = require('../connection');
+  var getObject = require('../object');
 
   router.get('/', (req, res) => {
     var id = req.query.id;
+    var object = getObject('curation');
     
     getConnection(function(connection) {
-      var query = `select count(music_id) as count, id, title, content, ctype_id
+      var query = `select ${object}
                   from curation, curation_item
                   where curation_item.curation_id=curation.id and demo_type is null
                   `;
@@ -40,9 +42,10 @@ module.exports = () => {
 
   router.get('/ctype', (req, res) => {
     var ctype_id = req.query.ctype_id;
+    var object = getObject('curation');
     
     getConnection(function(connection) {
-      var query = `select count(music_id) as count, id, title, content, ctype_id
+      var query = `select ${object}
                   from curation, curation_item
                   where curation_item.curation_id=curation.id and ctype_id=${ctype_id} and demo_type is null
                   group by id`;

@@ -12,6 +12,7 @@
 module.exports = () => {
   var router = require('express').Router();
   var getConnection = require('../connection');
+  var getObject = require('../object');
 
   router.post('/', (req, res) => {
     var music_id = req.body.music_id;
@@ -92,8 +93,8 @@ module.exports = () => {
 
   router.get('/list', (req, res) => {
     var user_id = req.query.user_id;
-    var target = 'music.id, music.title, music.artist, 1 as islike, love.pitch, music.number, music.cluster';
-    var query = `select ${target} from music, love where music.id = love.music_id and love.user_id = ${user_id}`;
+    var object = getObject('love');
+    var query = `select ${object} from music, love where music.id = love.music_id and love.user_id = ${user_id}`;
 
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
