@@ -67,7 +67,32 @@ module.exports = () => {
       });
       connection.release();
     });
-    
+  });
+
+  router.patch('/', (req, res) => {
+    var id = req.body.id;
+    var title = req.body.title;
+    var emoji = req.body.emoji;
+    var query = `update playlist set title=\"${title}\", emoji=\"${emoji}\" where id=${id}`;
+
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          console.log(error)
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': 'update title, emoji success'
+          });
+        }
+      });
+      connection.release();
+    });
   });
 
   router.delete('/', (req, res) => {
