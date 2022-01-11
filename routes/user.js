@@ -52,7 +52,6 @@ module.exports = () => {
       });
       connection.release();
     });
-    
   });
 
   router.delete('/', (req, res) => {
@@ -71,6 +70,42 @@ module.exports = () => {
           res.json({
             'status': true,
             'body': 'success withdrawal'
+          });
+        }
+      });
+      connection.release();
+    });
+  });
+
+  router.get('/find', (req, res) => {
+    var email = req.query.email;
+    var query = `select name from user where email=\"${email}\"`;
+
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          console.log(error);
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          if(results.length == 0) {
+            res.json({
+              'status': true,
+              'body': {
+                'exist': false,
+                'data': null
+              }
+            });
+          }
+          else res.json({
+            'status': true,
+            'body': {
+              'exist': true, 
+              'data': results[0]
+            }
           });
         }
       });
