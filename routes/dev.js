@@ -148,14 +148,16 @@ module.exports = () => {
     var artist = req.body.artist;
     var number = req.body.number;
     var chart = req.body.chart;
+    var isMR = req.body.isMR;
+    var isMV = req.body.isMV;
 
     var getQuery = `select 1 from music where number=${number}`;
     var patchQuery = `update music set chart=${chart} where number=${number}`;
     var postQuery;
-    if(chart == -1) postQuery = `insert into music(itunes_id, title, artist, number)
-                                values(-1, \"${title}\", \"${artist}\", ${number})`;
-    else postQuery = `insert into music(itunes_id, title, artist, number, chart)
-                      values(-1, \"${title}\", \"${artist}\", ${number}, ${chart})`;
+    if(chart == -1) postQuery = `insert into music(itunes_id, title, artist, number, isMR, isMV)
+                                values(-1, \"${title}\", \"${artist}\", ${number}, ${isMR}, ${isMV})`;
+    else postQuery = `insert into music(itunes_id, title, artist, number, chart, isMR, isMV)
+                      values(-1, \"${title}\", \"${artist}\", ${number}, ${chart}, ${isMR}, ${isMV})`;
     getConnection(function(connection) {
       connection.query(getQuery, function(error, results, fields) {
         if(error) {

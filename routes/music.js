@@ -1,7 +1,7 @@
  /**
  * /music
  * [GET] id, user_id => get music info with user like, id 0 for get all music
- * [POST] itunes_id, title, artist, genre, time, year => insert music if not in database(check itunes_id)
+ * [POST] itunes_id, title, artist => insert music if not in database(check itunes_id)
  * 
  * /music/list
  * [GET] user_id, page, per_page => get music with user like
@@ -230,11 +230,8 @@ module.exports = () => {
     var itunes_id = req.body.itunes_id;
     var title = req.body.title;
     var artist = req.body.artist;
-    var genre = req.body.genre;
-    var time = req.body.time;
-    var year = req.body.year;
 
-    if(itunes_id && title && artist && genre && time && year) {
+    if(itunes_id && title && artist) {
       var select_query = `select id from music where itunes_id=${itunes_id};`;
 
       getConnection(function(connection) {
@@ -247,8 +244,8 @@ module.exports = () => {
           }
           else {
             if(results.length == 0) {
-              var query = `insert into music(itunes_id, title, artist, genre, time, year)\
-                          values(${itunes_id}, \"${title}\", \"${artist}\", \"${genre}\", ${time}, ${year});`;
+              var query = `insert into music(itunes_id, title, artist)\
+                          values(${itunes_id}, \"${title}\", \"${artist}\");`;
               connection.query(query, function(error, results, fields) {
                 if(error) {
                   res.json({
