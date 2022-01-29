@@ -168,24 +168,32 @@ module.exports = () => {
           });
         }
         else {
-          if(results.length != 0 && chart != -1) {
-            getConnection(function(patchConnection) {
-              patchConnection.query(patchQuery, function(error, results, fields) {
-                if(error) {
-                  res.json({
-                    'status': false,
-                    'log': 'patch error'
-                  });
-                }
-                else {
-                  res.json({
-                    'status': true,
-                    'body': 'patch'
-                  });
-                }
+          if(results.length != 0) {
+            if(chart != -1) {
+              getConnection(function(patchConnection) {
+                patchConnection.query(patchQuery, function(error, results, fields) {
+                  if(error) {
+                    res.json({
+                      'status': false,
+                      'log': 'patch error'
+                    });
+                  }
+                  else {
+                    res.json({
+                      'status': true,
+                      'body': 'patch'
+                    });
+                  }
+                });
+                patchConnection.release();
               });
-              patchConnection.release();
-            });
+            }
+            else {
+              res.json({
+                'status': true,
+                'body': 'exist' // exist
+              })
+            }
           }
           else {
             getConnection(function(postConnection) {
@@ -211,6 +219,20 @@ module.exports = () => {
       });
       connection.release();
     });
+  });
+
+  router.delete('/music/clean', (req, res) => {
+    getConnection(function(connection) {
+      var query = `delete from music w here id in (
+        select * from (
+          select b.id from music b
+            where b.id > (select min(c.id) from music c where b.number = c.number)
+        ) as result
+      )`;
+      connection.query(query, function(error, results, fields) {
+        connection.release();
+      });
+    })
   });
 
   router.get('/demo', (req, res) => {
