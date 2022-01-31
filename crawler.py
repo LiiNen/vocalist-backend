@@ -9,6 +9,8 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from dotenv import load_dotenv
 
+from datetime import date
+
 load_dotenv(verbose=True)
 
 TJ_CHART_SRC=os.getenv('TJ_CHART')
@@ -17,6 +19,7 @@ MOVIE_URL=os.getenv('MOVIE_URL')
 SEARCH_BASE=os.getenv('SEARCH_BASE')
 POST_URL=os.getenv('POST_URL')
 PATCH_URL=os.getenv('PATCH_URL')
+CHART_VERSION_URL=os.getenv('CHART_VERSION_URL')
 
 music_data_list = []
 error = 0
@@ -42,7 +45,8 @@ def add_row(param):
     'title': param[2],
     'artist': param[3],
     'isMR': param[4],
-    'isMV': param[5]
+    'isMV': param[5],
+    'isLIVE': param[6]
   })
 
 
@@ -84,7 +88,8 @@ def post_data():
       'title': chart_data['title'],
       'artist': chart_data['artist'],
       'isMR': chart_data['isMR'],
-      'isMV': chart_data['isMV']
+      'isMV': chart_data['isMV'],
+      'isLIVE': chart_data['isLIVE']
     }
     res = requests.post(POST_URL, json=request_body)
     if(res.json()['status'] == False):
@@ -98,6 +103,14 @@ def post_data():
         exist = exist + 1
     if (error+patch+post+exist == len(music_data_list)):
       print(error, patch, post, exist)
+
+def patch_chart():
+  today = date.today()
+  today_date = str(today.year) + '/' + str(today.month) + '/' + str(today.day)
+  request_body = {
+    'date': today_date
+  }
+  res = requests.patch(CHART_VERSION_URL, json=request_body)
 
 def get_movie():
   res = requests.get(MOVIE_URL)
@@ -113,21 +126,21 @@ def get_movie():
         break
       except:
         if(count > 10):
-            break
+          break
         count += 1
         continue
   success = 0
   error = 0
   for request_body in request_body_list:
       datas = {
-          'id': request_body[0],
-          'code': request_body[1]
+        'id': request_body[0],
+        'code': request_body[1]
       }
       res = requests.patch(MOVIE_URL, json=datas)
       if(res.json()['status'] == False):
-          error = error + 1
+        error = error + 1
       else:
-          success = success + 1
+        success = success + 1
   print('movie patch: ', error, success)
 
 options = webdriver.ChromeOptions()
@@ -137,8 +150,9 @@ options.add_argument("disable-gpu")
 
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
-get_movie()
 get_new()
 get_chart()
+patch_chart()
+get_movie()
 
 driver.quit()
