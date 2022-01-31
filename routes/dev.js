@@ -190,5 +190,26 @@ module.exports = () => {
     });
   });
 
+  router.get('/music/artist', (req, res) => {
+    getConnection(function(connection) {
+      var query = `select distinct artist from music`;
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': results
+          });
+        }
+      });
+      connection.release();
+    });
+  });
+
   return router;
 }
