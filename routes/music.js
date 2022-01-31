@@ -1,12 +1,3 @@
- /**
- * /music
- * [GET] id, user_id => get music info with user like, id 0 for get all music
- * [POST] itunes_id, title, artist => insert music if not in database(check itunes_id)
- * 
- * /music/list
- * [GET] user_id, page, per_page => get music with user like
- */
-
 module.exports = () => {
   var router = require('express').Router();
   var getConnection = require('../connection');
@@ -170,42 +161,13 @@ module.exports = () => {
     });
   });
 
-  router.get('/rec/cluster', (req, res) => {
-    var cluster = req.query.cluster;
-    var user_id = req.query.user_id;
-    var query = `select *,
-                  case when exists(select id from love where user_id=${user_id} and music_id=music.id)
-                  then 1 else 0
-                  end as islike
-                from music where number is not null and cluster=${cluster}`;
-
-    getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
-        if(error) {
-          res.json({
-            'status': false,
-            'log': 'query error'
-          });
-        }
-        else {
-          res.json({
-            'status': true,
-            'body': results
-          });
-        }
-      });
-      connection.release();
-    });
-  });
-
   router.get('/rec/love', (req, res) => {
-    var cluster = req.query.cluster;
     var user_id = req.query.user_id;
     var query = `select *,
                   case when exists(select id from love where user_id=${user_id} and music_id=music.id)
                   then 1 else 0
                   end as islike
-                from music where number is not null and cluster=${cluster}`;
+                from music where number is not null`;
 
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
@@ -223,59 +185,6 @@ module.exports = () => {
         }
       });
       connection.release();
-    });
-  });
-
-  router.post('/', (req, res) => {
-    var itunes_id = req.body.itunes_id;
-    var title = req.body.title;
-    var artist = req.body.artist;
-
-    if(itunes_id && title && artist) {
-      var select_query = `select id from music where itunes_id=${itunes_id};`;
-
-      getConnection(function(connection) {
-        connection.query(select_query, function(error, results, fields) {
-          if(error) {
-            res.json({
-              'status': false,
-              'log': 'query error'
-            });
-          }
-          else {
-            if(results.length == 0) {
-              var query = `insert into music(itunes_id, title, artist)\
-                          values(${itunes_id}, \"${title}\", \"${artist}\");`;
-              connection.query(query, function(error, results, fields) {
-                if(error) {
-                  res.json({
-                    'status': false,
-                    'log': 'query error'
-                  });
-                }
-                else {
-                  console.log(results.insertId);
-                  res.json({
-                    'status': true
-                  });
-                }
-              });
-            }
-            else {
-              res.json({
-                'status': false,
-                'log': 'already exists itunes_id'
-              });
-            }
-          }
-        });
-        connection.release();
-      });
-      
-    }
-    else res.json({
-      'status': false,
-      'log': 'wrong request body name'
     });
   });
 
