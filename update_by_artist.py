@@ -169,4 +169,5 @@ def post_data():
       print(error, patch, post, exist)
 
 post_data()
+res = requests.patch(ARTIST_GETTER)
 driver.quit()

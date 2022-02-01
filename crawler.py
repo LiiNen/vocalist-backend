@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from dotenv import load_dotenv
 
-from datetime import date
+from datetime import date, timedelta
 
 load_dotenv(verbose=True)
 
@@ -27,6 +27,7 @@ patch = 0
 post = 0
 exist = 0
 
+date_query = ''
 
 def init_chart_data():
   global music_data_list, error, patch, post, exist
@@ -49,17 +50,27 @@ def add_row(param):
     'isLIVE': param[6]
   })
 
+def date_setter():
+  global date_query
+  date_query = ''
+  today = date.today()
+  patch_chart(today, 2)
+  date_query = '&EYY=' + str(today.year) + '&EMM=' + str(today.month) + '&EDD=' + str(today.day) + date_query
+  week = today - timedelta(days=6)
+  patch_chart(week, 3)
+  date_query = 'SYY=' + str(week.year) + '&SMM=' + str(week.month) + '&SDD=' + str(week.day) + date_query
 
 def get_chart():
+  global date_query
   init_chart_data()
 
-  driver.get(TJ_CHART_SRC)
+  driver.get(TJ_CHART_SRC + date_query)
   chart_list = driver.find_elements(By.CSS_SELECTOR, '#BoardType1 tbody tr')
   chart_list.pop(0)
 
   for chart in chart_list:
     chart_td = chart.find_elements(By.CSS_SELECTOR, 'td')
-    add_row([chart_td[0].text, chart_td[1].text, chart_td[2].text, chart_td[3].text, False, False])
+    add_row([chart_td[0].text, chart_td[1].text, chart_td[2].text, chart_td[3].text, False, False, False])
   
   post_data()
 
@@ -73,7 +84,7 @@ def get_new():
   
   for new in new_list:
     new_td = new.find_elements(By.CSS_SELECTOR, 'td')
-    add_row([-1, new_td[0].text, new_td[1].text, new_td[2].text, False, False])
+    add_row([-1, new_td[0].text, new_td[1].text, new_td[2].text, False, False, False])
 
   post_data()
 
@@ -104,11 +115,12 @@ def post_data():
     if (error+patch+post+exist == len(music_data_list)):
       print(error, patch, post, exist)
 
-def patch_chart():
-  today = date.today()
-  today_date = str(today.year) + '/' + str(today.month) + '/' + str(today.day)
+# id 2 for today, 3 for week ago
+def patch_chart(target, id):
+  target_date = str(target.year) + '/' + str(target.month) + '/' + str(target.day)
   request_body = {
-    'date': today_date
+    'date': target_date,
+    'id': id,
   }
   res = requests.patch(CHART_VERSION_URL, json=request_body)
 
@@ -150,9 +162,9 @@ options.add_argument("disable-gpu")
 
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
-get_new()
-get_chart()
-patch_chart()
-get_movie()
+get_new() # get/set new musics
+date_setter() # get/set week(7days) date query
+get_chart() # get/set week chart
+get_movie() # get/set movie data if not exists
 
 driver.quit()
