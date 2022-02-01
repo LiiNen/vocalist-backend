@@ -211,5 +211,25 @@ module.exports = () => {
     });
   });
 
+  router.patch('/music/artist', (req, res) => {
+    getConnection(function(connection) {
+      var query = `update music set artist = SUBSTRING_INDEX(artist, '\n', -1) where artist like '%\n%'`;
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': 'removing \\n success'
+          });
+        }
+      });
+    });
+  });
+
   return router;
 }
