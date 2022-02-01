@@ -7,8 +7,6 @@ module.exports = () => {
   router.get('/', (req, res) => {
     var id = req.query.id;
     var user_id = req.query.user_id;
-    console.log(getObject(0));
-    console.log(getObject(1));
 
     if(id && user_id) {
       var query = `select distinct *,
@@ -161,13 +159,50 @@ module.exports = () => {
     });
   });
 
-  router.get('/rec/love', (req, res) => {
+  router.get('/rec/artist', (req, res) => {
     var user_id = req.query.user_id;
-    var query = `select *,
+    var artist = req.query.artist;
+    var contain = req.query.contain; // should be 0 or 1
+    var object = getObject('list');
+
+    var query = `select ${object},
                   case when exists(select id from love where user_id=${user_id} and music_id=music.id)
                   then 1 else 0
                   end as islike
-                from music where number is not null`;
+                from music where artist `;
+    if(contain == 0) query = query + `='${artist}'`;
+    else if(contain == 1) query = query + `like '%${artist}%' and artist != '${artist}'`;
+    else {
+      res.json({
+        'status': false,
+        'body': 'query error'
+      });
+    }
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': results
+          });
+        }
+      });
+      connection.release();
+    });
+  });
+
+  router.get('/rec/love', (req, res) => {
+    var user_id = req.query.user_id;
+    var query = `select distinct artist 
+                from music where music.id in 
+                (select music_id from love
+                where user_id=${user_id} and music_id=music.id);`;
 
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
