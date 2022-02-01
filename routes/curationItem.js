@@ -25,7 +25,7 @@ module.exports = () => {
 
     var query;
     if(user_id == undefined) {
-      query = `select ${object} from music\
+      query = `select ${object} from music
               where music.id in (select music_id from curation_item where curation_id = ${curation_id});`;
     }
     else {
@@ -33,7 +33,7 @@ module.exports = () => {
                 case when exists(select id from love where user_id=${user_id} and music_id=music.id)
                 then 1 else 0
                 end as islike
-              from music\
+              from music
               where music.id in (select music_id from curation_item where curation_id = ${curation_id});`;
     }
     

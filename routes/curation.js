@@ -75,7 +75,7 @@ module.exports = () => {
 
     try{
       if(title && content && ctype_id) {
-        var query = `insert into curation(title, content, ctype_id)\
+        var query = `insert into curation(title, content, ctype_id)
                     values(\"${title}\", \"${content}\", ${ctype_id});`;
 
         getConnection(function(connection) {
@@ -90,7 +90,7 @@ module.exports = () => {
               var count = 0;
               for(var i = 0; i < music_id_list.length; i++) {
                 var curation_id = results.insertId;
-                var query_item = `insert into curation_item(curation_id, music_id)\
+                var query_item = `insert into curation_item(curation_id, music_id)
                                     values(${results.insertId}, ${music_id_list[i]});`;
                 connection.query(query_item, function(error, results, fields) {
                   count+=1;

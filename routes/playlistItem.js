@@ -9,7 +9,7 @@
 module.exports = () => {
   var router = require('express').Router();
   var getConnection = require('../connection');
-  var getConnection = require('../object');
+  var getObject = require('../object');
 
   router.get('/:type?', (req, res) => {
     var type = req.params.type;
@@ -21,7 +21,7 @@ module.exports = () => {
 
     var query;
     if(user_id == undefined) {
-      query = `select ${object} from music \
+      query = `select ${object} from music 
                   where music.id in (select music_id from playlist_item where playlist_id=${playlist_id})`;
     }
     else {
@@ -29,7 +29,7 @@ module.exports = () => {
                 case when exists(select id from love where user_id=${user_id} and music_id=music.id)
                 then 1 else 0
                 end as islike
-              from music\
+              from music
               where music.id in (select music_id from playlist_item where playlist_id = ${playlist_id});`;
     }
 
@@ -56,9 +56,9 @@ module.exports = () => {
   router.post('/', (req, res) => {
     var playlist_id = req.body.playlist_id;
     var music_id = req.body.music_id;
-    var query = `insert into playlist_item(playlist_id, music_id) \
-                select ${playlist_id}, ${music_id} from dual \
-                where not exists \
+    var query = `insert into playlist_item(playlist_id, music_id)
+                select ${playlist_id}, ${music_id} from dual
+                where not exists
                 (select * from playlist_item where playlist_id=${playlist_id} and music_id=${music_id})`;
     
     getConnection(function(connection) {

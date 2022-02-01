@@ -6,7 +6,7 @@ function getObject(target) {
     return 'music.id, music.title, music.artist, music.number, music.chart, music.isMR, music.isLIVE';
   }
   else if(target == 'playlist') {
-    return 'count(music_id) as count, id, title, emoji';
+    return 'count(music_id) as count, playlist.id, title, emoji';
   }
   else if(target == 'curation') {
     return 'count(music_id) as count, id, title, content, ctype_id';
