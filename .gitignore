@@ -2,3 +2,9 @@
 .ipynb_checkpoints*
 *.ipynb
 *.csv
+node_modules
+*.pem
+.env
+*.DS_Store*
+nohup.out
+config.js
