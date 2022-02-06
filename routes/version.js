@@ -27,7 +27,7 @@ module.exports = () => {
 
   //chart date version
   router.get('/chart', (req, res) => {
-    var query = `select build from version where id=2`;
+    var query = `select id, build from version where id=2 or id=3 order by id`;
 
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
@@ -41,7 +41,7 @@ module.exports = () => {
         else {
           res.json({
             'status': true,
-            'body': results[0]
+            'body': results
           })
         }
       });
