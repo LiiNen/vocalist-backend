@@ -30,7 +30,7 @@ post = 0
 exist = 0
 
 options = webdriver.ChromeOptions()
-options.add_argument('headless')
+# options.add_argument('headless')
 options.add_argument('window-size=1920x1080')
 options.add_argument("disable-gpu")
 
@@ -71,48 +71,11 @@ def add_row(param):
   })
 
 for artist in tqdm(artist_list):
-for acc in range(0, 2): #acc=1 for exact search
-  search_name = artist.replace(' ', '')
-  
-  # search combined artist
-  try:
-    driver.get(base+search_name+query+str(acc))
-    search_result_list = driver.find_elements(By.CSS_SELECTOR, '#BoardType1 tbody tr')
-    
-    if search_result_list[1].text != '검색결과를 찾을수 없습니다.':
-      search_result_list.pop(0)
-      for search_result in search_result_list:
-        try:
-          result_td = search_result.find_elements(By.CSS_SELECTOR, 'td')
-          badge = result_td[1].find_elements(By.CSS_SELECTOR, '.mr_icon')
-          isMR, isMV, isLIVE = False, False, False
-          if len(badge) > 0:
-            badge_type = badge[0].get_attribute('src').split('/')[-1].split('_')[0]
-            if badge_type == 'mr':
-              isMR = True
-            elif badge_type == 'live':
-              isLIVE = True
-            else:
-              print(artist, 'exception', badge_type)
-          
-          # check duplicant & add
-          if result_td[0].text in number_list:
-            continue
-          add_row([-1, result_td[0].text, result_td[1].text, result_td[2].text, isMR, isMV, isLIVE])
-          number_list.append(result_td[0].text)
-        except:
-          print(search_name, 'search error')
-          continue
-  except:
-    print(search_name, 'artist error')
-  
-  # search each artist
-  search_name_list = artist.replace(' ', '').split(',')
-  if len(search_name_list) == 1:
-    continue
-  for search_name in search_name_list:
+  for acc in range(0, 2): #acc=1 for exact search
+    search_name = artist.replace(' ', '')
+    # search combined artist
     try:
-      driver.get(base+search_name+query+str(acc))
+      driver.get(ARTIST_SEARCH_BASE+search_name+ARTIST_SEARCH_QUERY+str(acc))
       search_result_list = driver.find_elements(By.CSS_SELECTOR, '#BoardType1 tbody tr')
       
       if search_result_list[1].text != '검색결과를 찾을수 없습니다.':
@@ -130,7 +93,7 @@ for acc in range(0, 2): #acc=1 for exact search
                 isLIVE = True
               else:
                 print(artist, 'exception', badge_type)
-                  
+            
             # check duplicant & add
             if result_td[0].text in number_list:
               continue
@@ -141,7 +104,45 @@ for acc in range(0, 2): #acc=1 for exact search
             continue
     except:
       print(search_name, 'artist error')
+    
+    # search each artist
+    search_name_list = artist.replace(' ', '').split(',')
+    if "(" in artist:
+      search_name_list.append(artist.replace(' ', '').split('(')[0])
+    if len(search_name_list) == 1:
       continue
+    for search_name in search_name_list:
+      try:
+        driver.get(ARTIST_SEARCH_BASE+search_name+ARTIST_SEARCH_QUERY+str(acc))
+        search_result_list = driver.find_elements(By.CSS_SELECTOR, '#BoardType1 tbody tr')
+        
+        if search_result_list[1].text != '검색결과를 찾을수 없습니다.':
+          search_result_list.pop(0)
+          for search_result in search_result_list:
+            try:
+              result_td = search_result.find_elements(By.CSS_SELECTOR, 'td')
+              badge = result_td[1].find_elements(By.CSS_SELECTOR, '.mr_icon')
+              isMR, isMV, isLIVE = False, False, False
+              if len(badge) > 0:
+                badge_type = badge[0].get_attribute('src').split('/')[-1].split('_')[0]
+                if badge_type == 'mr':
+                  isMR = True
+                elif badge_type == 'live':
+                  isLIVE = True
+                else:
+                  print(artist, 'exception', badge_type)
+                    
+              # check duplicant & add
+              if result_td[0].text in number_list:
+                continue
+              add_row([-1, result_td[0].text, result_td[1].text, result_td[2].text, isMR, isMV, isLIVE])
+              number_list.append(result_td[0].text)
+            except:
+              print(search_name, 'search error')
+              continue
+      except:
+        print(search_name, 'artist error')
+        continue
 
 def post_data():
   global music_data_list, error, patch, post, exist
