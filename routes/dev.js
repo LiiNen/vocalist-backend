@@ -191,8 +191,16 @@ module.exports = () => {
   });
 
   router.get('/music/artist', (req, res) => {
+    var all = req.query.all;
+    var query;
+    if(all==1) {
+      query = `select distinct aritst from music`;
+    }
+    else if(all==0) {
+      query = `select artist, count(1) as a_count from music group by artist having a_count=1`;
+    }
+
     getConnection(function(connection) {
-      var query = `select distinct artist from music`;
       connection.query(query, function(error, results, fields) {
         if(error) {
           res.json({

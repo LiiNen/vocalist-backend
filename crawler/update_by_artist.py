@@ -30,7 +30,7 @@ post = 0
 exist = 0
 
 options = webdriver.ChromeOptions()
-# options.add_argument('headless')
+options.add_argument('headless')
 options.add_argument('window-size=1920x1080')
 options.add_argument("disable-gpu")
 
@@ -39,7 +39,7 @@ driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), opti
 def dict_parser(dict):
   return dict['artist']
 
-res = requests.get(ARTIST_GETTER)
+res = requests.get(ARTIST_GETTER + '?all=0')
 artist_json_list = res.json()['body']
 artist_list = list(map(dict_parser, artist_json_list))
 
@@ -107,7 +107,7 @@ for artist in tqdm(artist_list):
     
     # search each artist
     search_name_list = artist.replace(' ', '').split(',')
-    if "(" in artist:
+    if "(" in artist and artist[0] != '(':
       search_name_list.append(artist.replace(' ', '').split('(')[0])
     if len(search_name_list) == 1:
       continue
