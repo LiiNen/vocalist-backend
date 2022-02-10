@@ -112,8 +112,11 @@ for artist in tqdm(artist_list):
     if len(search_name_list) == 1:
       continue
     for search_name in search_name_list:
+      search_name_query = search_name
+      if ")" in search_name and "(" not in search_name:
+        search_name_query = search_name.replace(")", "")
       try:
-        driver.get(ARTIST_SEARCH_BASE+search_name+ARTIST_SEARCH_QUERY+str(acc))
+        driver.get(ARTIST_SEARCH_BASE+search_name_query+ARTIST_SEARCH_QUERY+str(acc))
         search_result_list = driver.find_elements(By.CSS_SELECTOR, '#BoardType1 tbody tr')
         
         if search_result_list[1].text != '검색결과를 찾을수 없습니다.':
