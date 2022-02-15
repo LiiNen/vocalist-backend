@@ -73,6 +73,53 @@ module.exports = () => {
       connection.release();
     });
   });
+
+  router.get('/maintenance', (req, res) => {
+    var query = `select build from version where id = 4`;
+
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          console.log(error);
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': results[0]
+          })
+        }
+      });
+      connection.release();
+    });
+  });
+
+  router.patch('/maintenance', (req, res) => {
+    var build = req.body.build;
+    var query = `update version set build = ${build} where id = 4`;
+
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          console.log(error);
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': 'success'
+          })
+        }
+      });
+      connection.release();
+    });
+  });
   
   return router;
 }

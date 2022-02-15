@@ -49,6 +49,28 @@ module.exports = () => {
     });
   });
 
+  router.delete('/music/youtube', (req, res) => {
+    var query = 'delete from music where youtube is null';
+
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': 'success'
+          });
+        }
+      });
+      connection.release();
+    });
+  })
+
   router.patch('/music/chart', (req, res) => {
     var query = `update music set chart=NULL`;
 

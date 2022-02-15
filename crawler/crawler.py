@@ -20,6 +20,7 @@ SEARCH_BASE=os.getenv('SEARCH_BASE')
 POST_URL=os.getenv('POST_URL')
 PATCH_URL=os.getenv('PATCH_URL')
 CHART_VERSION_URL=os.getenv('CHART_VERSION_URL')
+MAINTENANCE_URL=os.getenv('MAINTENANCE_URL')
 
 music_data_list = []
 error = 0
@@ -155,6 +156,15 @@ def get_movie():
         success = success + 1
   print('movie patch: ', error, success)
 
+def delete_movie():
+  res = requests.delete(MOVIE_URL)
+
+def maintenance_update(state):
+  request_body = {
+    'build': state
+  }
+  res = requests.patch(MAINTENANCE_URL, json=request_body)
+
 options = webdriver.ChromeOptions()
 options.add_argument('headless')
 options.add_argument('window-size=1920x1080')
@@ -162,9 +172,14 @@ options.add_argument("disable-gpu")
 
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
+delete_movie()
+maintenance_update(1)
+
 get_new() # get/set new musics
 date_setter() # get/set week(7days) date query
 get_chart() # get/set week chart
 get_movie() # get/set movie data if not exists
+
+maintenance_update(0)
 
 driver.quit()
