@@ -4,3 +4,4 @@ requests
 selenium
 tqdm
 webdriver-manager
+apscheduler

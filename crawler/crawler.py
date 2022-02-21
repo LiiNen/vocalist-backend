@@ -11,6 +11,8 @@ from dotenv import load_dotenv
 
 from datetime import date, timedelta
 
+from apscheduler.schedulers.background import BackgroundScheduler
+
 load_dotenv(verbose=True)
 
 TJ_CHART_SRC=os.getenv('TJ_CHART')
@@ -165,22 +167,30 @@ def maintenance_update(state):
   }
   res = requests.patch(MAINTENANCE_URL, json=request_body)
 
-options = webdriver.ChromeOptions()
-options.add_argument('headless')
-options.add_argument('--no-sandbox')
-options.add_argument("disable-gpu")
-options.add_argument('--disable-dev-shm-usage')
 
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+schedulers = BackgroundScheduler(timezone='Asia/Seoul')
+@schedulers.scheduled_job('cron', hour='5', minute='30', id='main_crawler')
+def crawler():
+  options = webdriver.ChromeOptions()
+  options.add_argument('headless')
+  options.add_argument('--no-sandbox')
+  options.add_argument("disable-gpu")
+  options.add_argument('--disable-dev-shm-usage')
 
-delete_movie()
-maintenance_update(1)
+  driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
-get_new() # get/set new musics
-date_setter() # get/set week(7days) date query
-get_chart() # get/set week chart
-get_movie() # get/set movie data if not exists
+  delete_movie()
+  maintenance_update(1)
 
-maintenance_update(0)
+  get_new() # get/set new musics
+  date_setter() # get/set week(7days) date query
+  get_chart() # get/set week chart
+  get_movie() # get/set movie data if not exists
 
+  maintenance_update(0)
+
+schedulers.start()
+
+while True:
+  time.sleep(1)
 driver.quit()
