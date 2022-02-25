@@ -25,21 +25,13 @@ CHART_VERSION_URL=os.getenv('CHART_VERSION_URL')
 MAINTENANCE_URL=os.getenv('MAINTENANCE_URL')
 
 music_data_list = []
-error = 0
-patch = 0
-post = 0
-exist = 0
 
 date_query = ''
 driver = None
 
 def init_chart_data():
-  global music_data_list, error, patch, post, exist
+  global music_data_list
   music_data_list = []
-  error = 0
-  patch = 0
-  post = 0
-  exist = 0
 
 
 def add_row(param):
@@ -58,6 +50,7 @@ def date_setter():
   global date_query
   date_query = ''
   today = date.today()
+  print('crawler activated date', today.year, '/', today.month, '/', today.day)
   patch_chart(today, 2)
   date_query = '&EYY=' + str(today.year) + '&EMM=' + str(today.month) + '&EDD=' + str(today.day) + date_query
   week = today - timedelta(days=6)
@@ -66,6 +59,7 @@ def date_setter():
 
 def get_chart():
   global date_query, driver
+  print('get chart')
   init_chart_data()
 
   driver.get(TJ_CHART_SRC + date_query)
@@ -81,6 +75,7 @@ def get_chart():
 
 def get_new():
   global driver
+  print('get new musics')
   init_chart_data()
 
   driver.get(TJ_NEW_SRC)
@@ -95,7 +90,8 @@ def get_new():
 
 
 def post_data():
-  global music_data_list, error, patch, post, exist
+  global music_data_list
+  error, patch, post, exist = 0
   res = requests.patch(PATCH_URL)
   for chart_data in music_data_list:
     request_body = {
@@ -118,7 +114,7 @@ def post_data():
       if(res.json()['body'] == 'exist'):
         exist = exist + 1
     if (error+patch+post+exist == len(music_data_list)):
-      print(error, patch, post, exist)
+      print('post error/patch/post/exist', error, patch, post, exist)
 
 # id 2 for today, 3 for week ago
 def patch_chart(target, id):
@@ -178,7 +174,8 @@ def crawler():
   options = webdriver.ChromeOptions()
   options.add_argument('headless')
   options.add_argument('--no-sandbox')
-  options.add_argument("disable-gpu")
+  options.add_argument('disable-gpu')
+  options.add_argument('window-size=1920,1080')
   options.add_argument('--disable-dev-shm-usage')
 
   driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
