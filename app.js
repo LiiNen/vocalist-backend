@@ -63,6 +63,9 @@ app.use('/version', version);
 var policy = require('./routes/policy')();
 app.use('/policy', policy);
 
+var notice = require('./routes/notice')();
+app.use('/notice', notice);
+
 // start server
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
