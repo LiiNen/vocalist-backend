@@ -4,7 +4,7 @@ module.exports = () => {
   var getConnection = require('../connection');
 
   router.get('', (req, res) => {
-    var query = `select * from notice order by date desc`;
+    var query = `select * from notice order by date desc, is_open`;
 
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
@@ -39,7 +39,7 @@ module.exports = () => {
         else {
           res.json({
             'status': true,
-            'body': results[0]
+            'body': results
           });
         }
         });
