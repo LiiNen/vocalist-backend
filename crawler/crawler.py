@@ -91,7 +91,7 @@ def get_new():
 
 def post_data():
   global music_data_list
-  error, patch, post, exist = 0
+  error = patch = post = exist = 0
   res = requests.patch(PATCH_URL)
   for chart_data in music_data_list:
     request_body = {
