@@ -4,7 +4,7 @@ module.exports = () => {
   var getConnection = require('../connection');
 
   router.get('', (req, res) => {
-    var query = `select * from notice order by date desc, is_open`;
+    var query = `select * from notice order by is_open desc, date desc`;
 
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
