@@ -15,7 +15,7 @@ module.exports = () => {
                     case when exists(select id from love where user_id=${user_id} and music_id=music.id)
                     then 1 else 0
                     end as islike
-                  from music where title like \'%${input}%\'`;
+                  from music where number is not null and youtube is not null and title like \'%${input}%\'`;
 
       getConnection(function(connection) {
         connection.query(query, function(error, results, fields) {
@@ -52,7 +52,7 @@ module.exports = () => {
                     case when exists(select id from love where user_id=${user_id} and music_id=music.id)
                     then 1 else 0
                     end as islike
-                  from music where artist like \'%${input}%\'`;
+                  from music where number is not null and youtube is not null and artist like \'%${input}%\'`;
 
       getConnection(function(connection) {
         connection.query(query, function(error, results, fields) {

@@ -13,8 +13,8 @@ module.exports = () => {
                     case when exists(select id from love where user_id=${user_id} and music_id=music.id)
                     then 1 else 0
                     end as islike
-                  from music`;
-      if(id != 0) query = `${query} where id=${id}`;
+                  from music where number is not null and youtube is not null`;
+      if(id != 0) query = `${query} and id=${id}`;
 
       getConnection(function(connection) {
         connection.query(query, function(error, results, fields) {
@@ -59,7 +59,7 @@ module.exports = () => {
                     case when exists(select id from love where user_id=${user_id} and music_id=music.id)
                     then 1 else 0
                     end as islike
-                  from music`;
+                  from music where youtube is not null and number is not null`;
       
       getConnection(function(connection) {
         var queryAsync = Promise.promisify(connection.query.bind(connection));
@@ -138,7 +138,7 @@ module.exports = () => {
 
   router.get('/rec', (req, res) => {
     var user_id = req.query.user_id;
-    var query = `select id, title, artist, number from music where number is not null order by rand() limit 30`;
+    var query = `select id, title, artist, number from music where number is not null and youtube is not null order by rand() limit 30`;
 
     getConnection(function(connection) {
       connection.query(query, function(error, results, fields) {
@@ -169,7 +169,7 @@ module.exports = () => {
                   case when exists(select id from love where user_id=${user_id} and music_id=music.id)
                   then 1 else 0
                   end as islike
-                from music where artist `;
+                from music where number is not null and youtube is not null and artist `;
     if(contain == 0) query = query + `='${artist}'`;
     else if(contain == 1) query = query + `like '%${artist}%' and artist != '${artist}'`;
     else {
