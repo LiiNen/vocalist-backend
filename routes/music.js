@@ -223,6 +223,35 @@ module.exports = () => {
     });
   });
 
+  router.get('/new', (req, res) => {
+    var user_id = req.query.user_id;
+    var object = getObject('list');
+
+    var query = `select distinct ${object},
+                  case when exists(select id from love where user_id=${user_id} and music_id=music.id)
+                  then 1 else 0
+                end as islike
+                from music where number is not null and youtube is not null order by music.id desc limit 30`;
+
+    getConnection(function(connection) {
+      connection.query(query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': results
+          });
+        }
+      });
+      connection.release();
+    });
+  });
+
   function exitHandler(options, err) {
     if (options.shutdownDb) {
       console.log('shutdown mysql connection');
