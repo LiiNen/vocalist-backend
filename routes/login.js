@@ -63,8 +63,8 @@ module.exports = () => {
     var name = req.body.name;
     var type = req.body.type;
     if(email && name && type) {
-      var query = `insert into user(email, name, type)
-                  select \"${email}\", \"${name}\", \"${type}\"
+      var query = `insert into user(email, name, type, emoji)
+                  select \"${email}\", \"${name}\", \"${type}\", \"😃\"
                   from dual
                   where not exists(select 1 from user where email=\"${email}\");`
 
