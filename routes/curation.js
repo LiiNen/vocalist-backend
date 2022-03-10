@@ -87,34 +87,41 @@ module.exports = () => {
               });
             }
             else {
-              var count = 0;
-              for(var i = 0; i < music_id_list.length; i++) {
-                var curation_id = results.insertId;
-                var query_item = `insert into curation_item(curation_id, music_id)
-                                    values(${results.insertId}, ${music_id_list[i]});`;
-                connection.query(query_item, function(error, results, fields) {
-                  count+=1;
-                  if(error && !res.headersSent) {
-                    res.json({
-                      'status': false,
-                      'log': 'query error'
-                    });
-                    connection.query(`delete from curation where id=${curation_id};`);
-                    connection.query(`delete from curation_item where curation_id=${curation_id};`);
-                  }
-                  else if(!res.headersSent && count == music_id_list.length) {
-                    res.json({
-                      'status': true,
-                      'log': 'curation insertion success'
-                    });
-                  }
+              if(music_id_list.length == 0) {
+                res.json({
+                  'status': true,
+                  'log': results.insertId
                 });
+              }
+              else {
+                var count = 0;
+                for(var i = 0; i < music_id_list.length; i++) {
+                  var curation_id = results.insertId;
+                  var query_item = `insert into curation_item(curation_id, music_id)
+                                      values(${results.insertId}, ${music_id_list[i]});`;
+                  connection.query(query_item, function(error, results, fields) {
+                    count+=1;
+                    if(error && !res.headersSent) {
+                      res.json({
+                        'status': false,
+                        'log': 'query error'
+                      });
+                      connection.query(`delete from curation where id=${curation_id};`);
+                      connection.query(`delete from curation_item where curation_id=${curation_id};`);
+                    }
+                    else if(!res.headersSent && count == music_id_list.length) {
+                      res.json({
+                        'status': true,
+                        'log': 'curation insertion success'
+                      });
+                    }
+                  });
+                }
               }
             }
           });
           connection.release();
         });
-
       }
       else res.json({
         'status': false,

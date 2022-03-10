@@ -89,6 +89,49 @@ module.exports = () => {
     });
   });
 
+  router.post('/number', (req, res) => {
+    var curation_id = req.body.curation_id;
+    var number = req.body.number;
+    var check_query = `select id from music where number=${number}`;
+    var insert_query = `insert into curation_item(curation_id, music_id) values(${curation_id}, (select id from music where number=${number}))`;
+
+    getConnection(function(connection) {
+      connection.query(check_query, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'check query error'
+          });
+        }
+        else {
+          if(results.length == 0) {
+            res.json({
+              'status': false,
+              'log': 'no music'
+            });
+          }
+          else {
+            connection.query(insert_query, function(error, results, fields) {
+              if(error) {
+                res.json({
+                  'status': false,
+                  'log': 'insert query error'
+                });
+              }
+              else {
+                res.json({
+                  'status': true,
+                  'log': 'insert success'
+                });
+              }
+            });
+          }
+        }
+      });
+      connection.release();
+    });
+  });
+
   router.post('/list', (req, res) => {
     var curation_id = req.body.curation_id;
     var music_id_list = req.body.music_id_list;
