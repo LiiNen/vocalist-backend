@@ -17,6 +17,7 @@ module.exports = () => {
       if(id) {
         var query = `select * from ctype`;
         if(id != 0) query = `${query} where id=${id};`;
+	else query = `${query} where is_open=1`;
         connection.query(query, function(error, results, fields) {
           if(error) {
             res.json({

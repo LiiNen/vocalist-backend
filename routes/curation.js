@@ -47,7 +47,7 @@ module.exports = () => {
     getConnection(function(connection) {
       var query = `select ${object}
                   from curation, curation_item
-                  where curation_item.curation_id=curation.id and ctype_id=${ctype_id} and demo_type is null
+                  where curation_item.curation_id=curation.id and ctype_id=${ctype_id} and (demo_type is null or demo_type=0)
                   group by id`;
       connection.query(query, function(error, results, fields) {
         if(error) {
