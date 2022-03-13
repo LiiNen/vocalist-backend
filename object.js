@@ -9,7 +9,7 @@ function getObject(target) {
     return 'count(music_id) as count, playlist.id, title, emoji';
   }
   else if(target == 'curation') {
-    return 'count(music_id) as count, id, title, content, ctype_id';
+    return 'count(music_id) as count, id, title, content, ctype_id, img_id';
   }
   else if(target == 'love') {
     return 'music.id, music.title, music.artist, 1 as islike, love.pitch, music.number, music.isMR, music.isLIVE';
