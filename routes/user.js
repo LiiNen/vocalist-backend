@@ -78,7 +78,7 @@ module.exports = () => {
 
   router.get('/find', (req, res) => {
     var email = req.query.email;
-    var query = `select name from user where email=?"`;
+    var query = `select name from user where email=?`;
 
     getConnection(function(connection) {
       connection.query(query, [email], function(error, results, fields) {

@@ -119,15 +119,15 @@ module.exports = () => {
                   then 1 else 0
                   end as islike
                 from music where number is not null and youtube is not null and artist `;
-    if(contain == 0) query = query + `='?'`;
-    else if(contain == 1) query = query + `like '%?%' and artist != '?'`;
+    if(contain == 0) query = query + `=?`;
+    else if(contain == 1) query = query + `!= ? and artist like ?`;
     else {
       res.json({
         'status': false,
         'body': 'query error'
       });
     }
-    var params = [user_id, artist, artist];
+    var params = [user_id, artist, `%${artist}%`];
 
     getConnection(function(connection) {
       connection.query(query, params, function(error, results, fields) {
