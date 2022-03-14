@@ -16,9 +16,10 @@ module.exports = () => {
     getConnection(function(connection) {
       if(id) {
         var query = `select * from ctype`;
-        if(id != 0) query = `${query} where id=${id};`;
-	else query = `${query} where is_open=1`;
-        connection.query(query, function(error, results, fields) {
+        if(id != 0) query = `${query} where id=?;`;
+	      else query = `${query} where is_open=1`;
+        
+        connection.query(query, [id], function(error, results, fields) {
           if(error) {
             res.json({
               'status': false,
@@ -51,9 +52,10 @@ module.exports = () => {
   
   router.post('/', (req, res) => {
     var title = req.body.title;
-    var query = `insert into ctype(title) values(\"${title}\");`;
+    var query = `insert into ctype(title) values(\"?\");`;
+
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, [title], function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,
@@ -73,9 +75,10 @@ module.exports = () => {
 
   router.delete('/', (req, res) => {
     var id = req.body.id;
-    var query = `delete from ctype where id=${id}`;
+    var query = `delete from ctype where id=?`;
+
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, [id], function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,

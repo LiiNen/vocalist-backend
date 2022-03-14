@@ -20,9 +20,9 @@ module.exports = () => {
                   from curation, curation_item
                   where curation_item.curation_id=curation.id and demo_type is null
                   `;
-      if(id != 0) query = `${query} and id=${id}`;
+      if(id != 0) query = `${query} and id=?`;
       query = `${query} group by id;`;
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, [id], function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,
@@ -43,13 +43,13 @@ module.exports = () => {
   router.get('/ctype', (req, res) => {
     var ctype_id = req.query.ctype_id;
     var object = getObject('curation');
+    var query = `select ${object}
+                from curation, curation_item
+                where curation_item.curation_id=curation.id and ctype_id=? and (demo_type is null or demo_type=0)
+                group by id`;
     
     getConnection(function(connection) {
-      var query = `select ${object}
-                  from curation, curation_item
-                  where curation_item.curation_id=curation.id and ctype_id=${ctype_id} and (demo_type is null or demo_type=0)
-                  group by id`;
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, [ctype_id], function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,
@@ -72,14 +72,15 @@ module.exports = () => {
     var content = req.body.content;
     var ctype_id = req.body.ctype_id;
     var music_id_list = req.body.music_id_list;
+    var params = [title, content, ctype_id];
 
     try{
       if(title && content && ctype_id) {
         var query = `insert into curation(title, content, ctype_id)
-                    values(\"${title}\", \"${content}\", ${ctype_id});`;
+                    values(\"?\", \"?\", ?);`;
 
         getConnection(function(connection) {
-          connection.query(query, function(error, results, fields) {
+          connection.query(query, params, function(error, results, fields) {
             if(error) {
               res.json({
                 'status': false,
@@ -98,8 +99,10 @@ module.exports = () => {
                 for(var i = 0; i < music_id_list.length; i++) {
                   var curation_id = results.insertId;
                   var query_item = `insert into curation_item(curation_id, music_id)
-                                      values(${results.insertId}, ${music_id_list[i]});`;
-                  connection.query(query_item, function(error, results, fields) {
+                                      values(${results.insertId}, ?);`;
+                  var params_item = [music_id_list[i]];
+
+                  connection.query(query_item, params_item, function(error, results, fields) {
                     count+=1;
                     if(error && !res.headersSent) {
                       res.json({
@@ -137,11 +140,11 @@ module.exports = () => {
 
   router.delete('/', (req, res) => {
     var id = req.body.id;
-    var queryCuration = `delete from curation where id=${id}`;
-    var queryCurationItem = `delete from curation_item where curation_id=${id}`;
+    var queryCuration = `delete from curation where id=?`;
+    var queryCurationItem = `delete from curation_item where curation_id=?`;
 
     getConnection(function(connection) {
-      connection.query(queryCurationItem, function(error, results, fields) {
+      connection.query(queryCurationItem, [id], function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,
@@ -149,7 +152,7 @@ module.exports = () => {
           });
         }
         else {
-          connection.query(queryCuration, function(error, results, fields) {
+          connection.query(queryCuration, [id], function(error, results, fields) {
             if(error) {
               res.json({
                 'status': false,

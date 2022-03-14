@@ -5,10 +5,10 @@ module.exports = () => {
 
   router.get('/', (req, res) => {
     var id = req.query.id;
+    var query = `select * from policy where id=?`;
     
     getConnection(function(connection) {
-      var query = `select * from policy where id=${id}`;
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, [id], function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,

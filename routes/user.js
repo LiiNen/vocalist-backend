@@ -4,10 +4,10 @@ module.exports = () => {
 
   router.get('/', (req, res) => {
     var id = req.query.id;
-    var query = `select * from user where id=${id}`;
+    var query = `select * from user where id=?`;
 
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, [id], function(error, results, fields) {
         if(error) {
           console.log(error);
           res.json({
@@ -30,12 +30,11 @@ module.exports = () => {
     var id = req.body.id;
     var name = req.body.name;
     var emoji = req.body.emoji;
-    var nameQuery = `name = \"${name}\"`;
-    var emojiQuery = `emoji = \"${emoji}\"`;
-    var query = `update user set ${nameQuery}, ${emojiQuery} where id = ${id}`;
+    var query = `update user set name=\"?\", emoji=\"?\" where id=?`;
+    var params = [name, emoji, id];
 
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, params, function(error, results, fields) {
         if(error) {
           console.log(error);
           res.json({
@@ -56,10 +55,10 @@ module.exports = () => {
 
   router.delete('/', (req, res) => {
     var id = req.body.id;
-    var query = `delete from user where id=${id}`;
+    var query = `delete from user where id=?`;
 
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, [id], function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,
@@ -79,10 +78,10 @@ module.exports = () => {
 
   router.get('/find', (req, res) => {
     var email = req.query.email;
-    var query = `select name from user where email=\"${email}\"`;
+    var query = `select name from user where email=\"?\"`;
 
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, [email], function(error, results, fields) {
         if(error) {
           console.log(error);
           res.json({

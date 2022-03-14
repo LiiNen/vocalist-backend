@@ -12,13 +12,14 @@ module.exports = () => {
 
     if(user_id) {
       var query = `select distinct ${object},
-                    case when exists(select id from love where user_id=${user_id} and music_id=music.id)
+                    case when exists(select id from love where user_id=? and music_id=music.id)
                     then 1 else 0
                     end as islike
-                  from music where number is not null and youtube is not null and title like \'%${input}%\'`;
+                  from music where number is not null and youtube is not null and title like \'%?%\'`;
+      var params = [user_id, input];
 
       getConnection(function(connection) {
-        connection.query(query, function(error, results, fields) {
+        connection.query(query, params, function(error, results, fields) {
           if(error) {
             res.json({
               'status': false,
@@ -49,13 +50,14 @@ module.exports = () => {
 
     if(user_id) {
       var query = `select distinct ${object},
-                    case when exists(select id from love where user_id=${user_id} and music_id=music.id)
+                    case when exists(select id from love where user_id=? and music_id=music.id)
                     then 1 else 0
                     end as islike
-                  from music where number is not null and youtube is not null and artist like \'%${input}%\'`;
+                  from music where number is not null and youtube is not null and artist like \'%?%\'`;
+      var params = [user_id, input];
 
       getConnection(function(connection) {
-        connection.query(query, function(error, results, fields) {
+        connection.query(query, params, function(error, results, fields) {
           if(error) {
             res.json({
               'status': false,
@@ -82,10 +84,11 @@ module.exports = () => {
   router.get('/curation', (req, res) => {
     var input = req.query.input;
 
-    var query = `select * from curation where (title like '%${input}%' or content like '%${input}%') and demo_type is null`;
+    var query = `select * from curation where (title like '%?%' or content like '%?%') and demo_type is null`;
+    var params = [input, input];
 
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, params, function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,

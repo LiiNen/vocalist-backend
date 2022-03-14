@@ -30,10 +30,11 @@ module.exports = () => {
     var content = req.body.content;
     var email = req.body.email;
     var query = `insert into bug_report(user_id, title, content, email)
-                values(${user_id}, \"${title}\", \"${content}\", \"${email}\")`;
+                values(?, \"?\", \"?\", \"?\")`;
+    var params = [user_id, title, content, email];
 
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, params, function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,
@@ -54,11 +55,10 @@ module.exports = () => {
 
   router.delete('/', (req, res) => {
     var id = req.body.id;
-
-    var query = `delete from bug_report where id = ${id}`;
+    var query = `delete from bug_report where id = ?`;
 
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, [id], function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,

@@ -20,21 +20,24 @@ module.exports = () => {
     var user_id = req.query.user_id;
 
     var query;
+    var params;
     if(user_id == undefined) {
       query = `select ${object} from music 
-                  where music.id in (select music_id from playlist_item where playlist_id=${playlist_id})`;
+                  where music.id in (select music_id from playlist_item where playlist_id=?)`;
+      params = [playlist_id];
     }
     else {
       query = `select distinct ${object},
-                case when exists(select id from love where user_id=${user_id} and music_id=music.id)
+                case when exists(select id from love where user_id=? and music_id=music.id)
                 then 1 else 0
                 end as islike
               from music
-              where music.id in (select music_id from playlist_item where playlist_id = ${playlist_id});`;
+              where music.id in (select music_id from playlist_item where playlist_id = ?);`;
+      params = [user_id, playlist_id];
     }
 
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, params, function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,
@@ -57,12 +60,13 @@ module.exports = () => {
     var playlist_id = req.body.playlist_id;
     var music_id = req.body.music_id;
     var query = `insert into playlist_item(playlist_id, music_id)
-                select ${playlist_id}, ${music_id} from dual
+                select ?, ? from dual
                 where not exists
-                (select * from playlist_item where playlist_id=${playlist_id} and music_id=${music_id})`;
+                (select * from playlist_item where playlist_id=? and music_id=?)`;
+    var params = [playlist_id, music_id, playlist_id, music_id];
     
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, params, function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,
@@ -84,10 +88,11 @@ module.exports = () => {
   router.delete('/', (req, res) => {
     var playlist_id = req.body.playlist_id;
     var music_id = req.body.music_id;
-    var query = `delete from playlist_item where playlist_id=${playlist_id} and music_id=${music_id}`;
+    var query = `delete from playlist_item where playlist_id=? and music_id=?`;
+    var params = [playlist_id, music_id];
 
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, params, function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,

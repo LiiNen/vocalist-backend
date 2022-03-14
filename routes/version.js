@@ -52,10 +52,11 @@ module.exports = () => {
   router.patch('/chart', (req, res) => {
     var date = req.body.date;
     var id = req.body.id;
-    var query = `update version set build=\"${date}\" where id=${id}`;
+    var query = `update version set build=\"?\" where id=?`;
+    var params = [date, id];
 
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, params, function(error, results, fields) {
         if(error) {
           console.log(error);
           res.json({
@@ -99,10 +100,10 @@ module.exports = () => {
 
   router.patch('/maintenance', (req, res) => {
     var build = req.body.build;
-    var query = `update version set build = ${build} where id = 4`;
+    var query = `update version set build = ? where id = 4`;
 
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, [build], function(error, results, fields) {
         if(error) {
           console.log(error);
           res.json({

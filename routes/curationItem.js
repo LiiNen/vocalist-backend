@@ -24,21 +24,24 @@ module.exports = () => {
     var user_id = req.query.user_id;
 
     var query;
+    var params;
     if(user_id == undefined) {
       query = `select ${object} from music
-              where music.id in (select music_id from curation_item where curation_id = ${curation_id});`;
+              where music.id in (select music_id from curation_item where curation_id = ?);`;
+      params = [curation_id];
     }
     else {
       query = `select distinct ${object},
-                case when exists(select id from love where user_id=${user_id} and music_id=music.id)
+                case when exists(select id from love where user_id=? and music_id=music.id)
                 then 1 else 0
                 end as islike
               from music
-              where music.id in (select music_id from curation_item where curation_id = ${curation_id});`;
+              where music.id in (select music_id from curation_item where curation_id = ?);`;
+      params = [user_id, curation_id];
     }
     
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, params, function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,
@@ -67,9 +70,11 @@ module.exports = () => {
   router.post('/', (req, res) => {
     var curation_id = req.body.curation_id;
     var music_id = req.body.music_id;
-    var query = `insert into curation_item(curation_id, music_id) values(${curation_id}, ${music_id})`;
+    var query = `insert into curation_item(curation_id, music_id) values(?, ?)`;
+    var params = [curation_id, music_id];
+
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, params, function(error, results, fields) {
         if(error) {
           console.log(error);
           res.json({
@@ -92,11 +97,13 @@ module.exports = () => {
   router.post('/number', (req, res) => {
     var curation_id = req.body.curation_id;
     var number = req.body.number;
-    var check_query = `select id from music where number=${number}`;
-    var insert_query = `insert into curation_item(curation_id, music_id) values(${curation_id}, (select id from music where number=${number}))`;
+    var check_query = `select id from music where number=?`;
+    var check_params = [number];
+    var insert_query = `insert into curation_item(curation_id, music_id) values(?, (select id from music where number=?))`;
+    var insert_params = [curation_id, number];
 
     getConnection(function(connection) {
-      connection.query(check_query, function(error, results, fields) {
+      connection.query(check_query, check_params, function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,
@@ -111,7 +118,7 @@ module.exports = () => {
             });
           }
           else {
-            connection.query(insert_query, function(error, results, fields) {
+            connection.query(insert_query, insert_params, function(error, results, fields) {
               if(error) {
                 res.json({
                   'status': false,
@@ -143,19 +150,17 @@ module.exports = () => {
       });
     }
     for(var i = 0; i < music_id_list.length; i++) {
-      var query = `insert into curation_item(curation_id, music_id) values(${curation_id}, ${music_id_list[i]})`;
+      var query = `insert into curation_item(curation_id, music_id) values(?, ?)`;
+      var params = [curation_id, music_id_list[i]];
       count += 1;
 
       getConnection(function(connection) {
-        connection.query(query, function(error, results, fields) {
+        connection.query(query, params, function(error, results, fields) {
           if(error && !res.headersSent) {
             res.json({
               'status': false,
               'log': 'music_id_list type error'
             });
-            for(var j = 0; j < i; j++) {
-              connection.query(`delete from curation_item where curation_id=${curation_id} and music_id=${music_id_list[j]};`);
-            }
           }
           else if(!res.headersSent && count == music_id_list.length) {
             res.json({
@@ -181,18 +186,20 @@ module.exports = () => {
       });
     }
     for(var i = 0; i < music_id_list.length; i++) {
-      var query = `delete from curation_item where music_id = ${music_id_list[i]}`;
+      let query = `delete from curation_item where music_id = ?`;
+      let params = [music_id_list[i]];
       count += 1;
 
       getConnection(function(connection) {
-        connection.query(query, function(error, results, fields) {
+        connection.query(query, params, function(error, results, fields) {
           if(error && !res.headersSent) {
             res.json({
               'status': false,
               'log': 'music_id_list type error'
             });
             for(var j = 0; j < i; j++) {
-              connection.query(`insert into curation_item(curation_id, music_id) values(${curation_id}, ${music_id_list[j]})`);
+              let restore_params = [curation_id, music_id_list[j]];
+              connection.query(`insert into curation_item(curation_id, music_id) values(?, ?)`, restore_params);
             }
           }
           else if(!res.headersSent && count == music_id_list.length) {
@@ -221,12 +228,12 @@ module.exports = () => {
       });
     }
     for(var i = 0; i < insert_list.length; i++) {
-      console.log(insert_list, insert_list[i]);
-      let insertQuery = `insert into curation_item(curation_id, music_id) values(${curation_id}, ${insert_list[i]})`;
+      let insertQuery = `insert into curation_item(curation_id, music_id) values(?, ?)`;
+      let insertParams = [curation_id, insert_list[i]];
       insertCount += 1;
 
       getConnection(function(connection) {
-        connection.query(insertQuery, function(error, results, fields) {
+        connection.query(insertQuery, insertParams, function(error, results, fields) {
           if(error && !res.headersSent) {
             res.json({
               'status': false,
@@ -245,11 +252,12 @@ module.exports = () => {
 
     }
     for(var j = 0; j < delete_list.length; j++) {
-      let deleteQuery = `delete from curation_item where curation_id=${curation_id} and music_id=${delete_list[j]}`;
+      let deleteQuery = `delete from curation_item where curation_id=? and music_id=?`;
+      let deleteParams = [curation_id, delete_list[j]];
       deleteCount += 1;
 
       getConnection(function(connection) {
-        connection.query(deleteQuery, function(error, results, fields) {
+        connection.query(deleteQuery, deleteParams, function(error, results, fields) {
           if(error && !res.headersSent) {
             res.json({
               'status': false,

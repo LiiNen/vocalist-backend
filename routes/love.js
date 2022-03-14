@@ -17,10 +17,11 @@ module.exports = () => {
   router.post('/', (req, res) => {
     var music_id = req.body.music_id;
     var user_id = req.body.user_id;
-    var query = `insert into love(music_id, user_id) values(${music_id}, ${user_id})`;
+    var query = `insert into love(music_id, user_id) values(?, ?)`;
+    var params = [music_id, user_id];
 
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, params, function(error, results, fields) {
         if(error) {
           console.log(error);
           res.json({
@@ -43,10 +44,11 @@ module.exports = () => {
   router.delete('/', (req, res) => {
     var music_id = req.body.music_id;
     var user_id = req.body.user_id;
-    var query = `delete from love where music_id=${music_id} and user_id=${user_id}`;
+    var query = `delete from love where music_id=? and user_id=?`;
+    var params = [music_id, user_id];
     
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, params, function(error, results, fields) {
         if(error) {
           console.log(error);
           res.json({
@@ -69,10 +71,10 @@ module.exports = () => {
 
   router.get('/count', (req, res) => {
     var user_id = req.query.user_id;
-    var query = `select count(*) as count from love where user_id=${user_id}`;
+    var query = `select count(*) as count from love where user_id=?`;
 
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, [user_id], function(error, results, fields) {
         if(error) {
           console.log(error);
           res.json({
@@ -94,10 +96,10 @@ module.exports = () => {
   router.get('/list', (req, res) => {
     var user_id = req.query.user_id;
     var object = getObject('love');
-    var query = `select ${object} from music, love where music.id = love.music_id and love.user_id = ${user_id}`;
+    var query = `select ${object} from music, love where music.id = love.music_id and love.user_id = ?`;
 
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, [user_id], function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,
@@ -119,10 +121,11 @@ module.exports = () => {
     var user_id = req.body.user_id;
     var music_id = req.body.music_id;
     var pitch = req.body.pitch;
-    var query = `update love set pitch = ${pitch} where user_id=${user_id} and music_id=${music_id};`;
+    var query = `update love set pitch=? where user_id=? and music_id=?;`;
+    var params = [pitch, user_id, music_id];
 
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, params, function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,

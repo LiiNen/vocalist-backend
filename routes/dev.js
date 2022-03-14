@@ -28,10 +28,11 @@ module.exports = () => {
   router.patch('/music/youtube', (req, res) => {
     var code=req.body.code;
     var id=req.body.id;
-    var query = `update music set youtube=\'${code}\' where id=${id}`;
+    var query = `update music set youtube=\'?\' where id=?`;
+    var params = [code, id];
 
     getConnection(function(connection) {
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, params, function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,
@@ -102,21 +103,31 @@ module.exports = () => {
     var isMV = req.body.isMV;
     var isLIVE = req.body.isLIVE;
 
-    var getQuery = `select 1 from music where number=${number}`;
+    var getQuery = `select 1 from music where number=?`;
+    var getParams = [number];
     var patchQuery;
+    var patchParams;
     var postQuery;
+    var postParams;
     if(chart == -1) {
-      patchQuery = `update music set title=\"${title}\", artist=\"${artist}\", isMR=${isMR}, isMV=${isMV}, isLIVE=${isLIVE} where number=${number}`;
+      patchQuery = `update music set title=\"?\", artist=\"?\", isMR=?, isMV=?, isLIVE=? where number=?`;
+      patchParams = [title, artist, isMR, isMV, isLIVE, number];
+
       postQuery = `insert into music(title, artist, number, isMR, isMV, isLIVE)
-                  values(\"${title}\", \"${artist}\", ${number}, ${isMR}, ${isMV}, ${isLIVE})`;
+                  values(\"?\", \"?\", ?, ?, ?, ?)`;
+      postParams = [title, artist, number, isMR, isMV, isLIVE];
     }
     else {
-      patchQuery = `update music set chart=${chart} where number=${number}`;
+      patchQuery = `update music set chart=? where number=?`;
+      patchParams = [chart, number];
+
       postQuery = `insert into music(title, artist, number, chart, isMR, isMV, isLIVE)
-                  values(\"${title}\", \"${artist}\", ${number}, ${chart}, ${isMR}, ${isMV}, ${isLIVE})`;
+                  values(\"?\", \"?\", ?, ?, ?, ?)`;
+      postParams = [title, artist, number, isMR, isMV, isLIVE];
     }
+    
     getConnection(function(connection) {
-      connection.query(getQuery, function(error, results, fields) {
+      connection.query(getQuery, getParams, function(error, results, fields) {
         if(error) {
           console.log(error);
           res.json({
@@ -127,7 +138,7 @@ module.exports = () => {
         else {
           if(results.length != 0) {
             getConnection(function(patchConnection) {
-              patchConnection.query(patchQuery, function(error, results, fields) {
+              patchConnection.query(patchQuery, patchParams, function(error, results, fields) {
                 if(error) {
                   res.json({
                     'status': false,
@@ -146,7 +157,7 @@ module.exports = () => {
           }
           else {
             getConnection(function(postConnection) {
-              postConnection.query(postQuery, function(error, results, fields) {
+              postConnection.query(postQuery, postParams, function(error, results, fields) {
                 if(error) {
                   console.log(error)
                   res.json({
@@ -186,15 +197,14 @@ module.exports = () => {
 
   router.get('/demo', (req, res) => {
     var id = req.query.id;
-    
+    var query = `select count(music_id) as count, id, title, content, ctype_id
+                from curation, curation_item
+                where curation_item.curation_id=curation.id and demo_type is not null`;
+    if(id != 0) query = `${query} and id=?`;
+    query = `${query} group by id;`;
+
     getConnection(function(connection) {
-      var query = `select count(music_id) as count, id, title, content, ctype_id
-                  from curation, curation_item
-                  where curation_item.curation_id=curation.id and demo_type is not null
-                  `;
-      if(id != 0) query = `${query} and id=${id}`;
-      query = `${query} group by id;`;
-      connection.query(query, function(error, results, fields) {
+      connection.query(query, [id], function(error, results, fields) {
         if(error) {
           res.json({
             'status': false,
