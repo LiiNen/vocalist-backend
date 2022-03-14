@@ -77,7 +77,7 @@ module.exports = () => {
     try{
       if(title && content && ctype_id) {
         var query = `insert into curation(title, content, ctype_id)
-                    values(\"?\", \"?\", ?);`;
+                    values(?, ?, ?);`;
 
         getConnection(function(connection) {
           connection.query(query, params, function(error, results, fields) {

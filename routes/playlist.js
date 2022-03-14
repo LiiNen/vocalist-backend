@@ -47,7 +47,7 @@ module.exports = () => {
     var title = req.body.title;
     var visible = req.body.visible;
     var emoji = req.body.emoji;
-    var query = `insert into playlist(user_id, title, visible, emoji) values(?, \"?\", ?, \"?\")`;
+    var query = `insert into playlist(user_id, title, visible, emoji) values(?, ?, ?, ?)`;
     var params = [user_id, title, visible, emoji];
 
     getConnection(function(connection) {

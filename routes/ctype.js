@@ -18,7 +18,7 @@ module.exports = () => {
         var query = `select * from ctype`;
         if(id != 0) query = `${query} where id=?;`;
 	      else query = `${query} where is_open=1`;
-        
+
         connection.query(query, [id], function(error, results, fields) {
           if(error) {
             res.json({
@@ -52,7 +52,7 @@ module.exports = () => {
   
   router.post('/', (req, res) => {
     var title = req.body.title;
-    var query = `insert into ctype(title) values(\"?\");`;
+    var query = `insert into ctype(title) values(?);`;
 
     getConnection(function(connection) {
       connection.query(query, [title], function(error, results, fields) {

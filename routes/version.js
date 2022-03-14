@@ -52,7 +52,7 @@ module.exports = () => {
   router.patch('/chart', (req, res) => {
     var date = req.body.date;
     var id = req.body.id;
-    var query = `update version set build=\"?\" where id=?`;
+    var query = `update version set build=? where id=?`;
     var params = [date, id];
 
     getConnection(function(connection) {

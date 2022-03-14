@@ -53,10 +53,10 @@ module.exports = () => {
     var email = req.body.email;
     var query = `insert into friend(user_id_apply, user_id_response, accept)
                   select ?, id, 0 from user
-                  where user.email=\"?\" and not exists(
-                    select 1 from friend, user where user_id_apply=? and user_id_response=user.id and user.email=\"?\"
+                  where user.email=? and not exists(
+                    select 1 from friend, user where user_id_apply=? and user_id_response=user.id and user.email=?
                     union
-                    select 1 from friend, user where user_id_apply=user.id and user_id_response=? and user.email=\"?\"
+                    select 1 from friend, user where user_id_apply=user.id and user_id_response=? and user.email=?
                   );`;
     var params = [user_id, email, user_id, email, user_id, email];
 

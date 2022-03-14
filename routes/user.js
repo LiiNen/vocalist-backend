@@ -30,7 +30,7 @@ module.exports = () => {
     var id = req.body.id;
     var name = req.body.name;
     var emoji = req.body.emoji;
-    var query = `update user set name=\"?\", emoji=\"?\" where id=?`;
+    var query = `update user set name=?, emoji=? where id=?`;
     var params = [name, emoji, id];
 
     getConnection(function(connection) {
@@ -78,7 +78,7 @@ module.exports = () => {
 
   router.get('/find', (req, res) => {
     var email = req.query.email;
-    var query = `select name from user where email=\"?\"`;
+    var query = `select name from user where email=?"`;
 
     getConnection(function(connection) {
       connection.query(query, [email], function(error, results, fields) {

@@ -30,7 +30,7 @@ module.exports = () => {
     var content = req.body.content;
     var email = req.body.email;
     var query = `insert into bug_report(user_id, title, content, email)
-                values(?, \"?\", \"?\", \"?\")`;
+                values(?, ?, ?, ?)`;
     var params = [user_id, title, content, email];
 
     getConnection(function(connection) {
