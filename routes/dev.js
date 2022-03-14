@@ -28,7 +28,7 @@ module.exports = () => {
   router.patch('/music/youtube', (req, res) => {
     var code=req.body.code;
     var id=req.body.id;
-    var query = `update music set youtube=\'?\' where id=?`;
+    var query = `update music set youtube=? where id=?`;
     var params = [code, id];
 
     getConnection(function(connection) {
@@ -110,11 +110,11 @@ module.exports = () => {
     var postQuery;
     var postParams;
     if(chart == -1) {
-      patchQuery = `update music set title=\"?\", artist=\"?\", isMR=?, isMV=?, isLIVE=? where number=?`;
+      patchQuery = `update music set title=?, artist=?, isMR=?, isMV=?, isLIVE=? where number=?`;
       patchParams = [title, artist, isMR, isMV, isLIVE, number];
 
       postQuery = `insert into music(title, artist, number, isMR, isMV, isLIVE)
-                  values(\"?\", \"?\", ?, ?, ?, ?)`;
+                  values(?, ?, ?, ?, ?, ?)`;
       postParams = [title, artist, number, isMR, isMV, isLIVE];
     }
     else {
@@ -122,10 +122,10 @@ module.exports = () => {
       patchParams = [chart, number];
 
       postQuery = `insert into music(title, artist, number, chart, isMR, isMV, isLIVE)
-                  values(\"?\", \"?\", ?, ?, ?, ?)`;
+                  values(?, ?, ?, ?, ?, ?)`;
       postParams = [title, artist, number, isMR, isMV, isLIVE];
     }
-    
+
     getConnection(function(connection) {
       connection.query(getQuery, getParams, function(error, results, fields) {
         if(error) {

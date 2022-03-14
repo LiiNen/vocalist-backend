@@ -74,7 +74,7 @@ module.exports = () => {
     var id = req.body.id;
     var title = req.body.title;
     var emoji = req.body.emoji;
-    var query = `update playlist set title=\"?\", emoji=\"?\" where id=?`;
+    var query = `update playlist set title=?, emoji=? where id=?`;
     var params = [title, emoji, id];
 
     getConnection(function(connection) {
