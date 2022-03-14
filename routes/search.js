@@ -104,6 +104,73 @@ module.exports = () => {
       connection.release();
     });
   });
+
+  router.get('/user/email', (req, res) => {
+    var user_id = req.query.user_id;
+    var input = req.query.input;
+    if(input.includes('@')) {
+      input = input.split('@')[0];
+    }
+    var query = `select distinct *,
+                  case when exists
+                    (select user_id_response, user_id_apply from friend
+                    where (user_id_apply=? and user_id_response=U.id and accept=1)
+                      or (user_id_response=? and user_id_apply=U.id and accept=1))
+                  then 1 else 0
+                  end as is_friend
+                from user U where email like ? and U.id != ?`;
+    var params = [user_id, user_id, `%${input}%`, user_id];
+    
+    getConnection(function(connection) {
+      connection.query(query, params, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            body: results
+          })
+        }
+      });
+      connection.release();
+    });
+  });
+
+  router.get('/user/name', (req, res) => {
+    var user_id = req.query.user_id;
+    var input = req.query.input;
+    var query = `select distinct *,
+                  case when exists
+                    (select user_id_response, user_id_apply from friend
+                    where (user_id_apply=? and user_id_response=U.id and accept=1)
+                      or (user_id_response=? and user_id_apply=U.id and accept=1))
+                  then 1 else 0
+                  end as is_friend
+                from user U where name like ? and U.id != ?`;
+    var params = [user_id, user_id, `%${input}%`, user_id];
+    
+    getConnection(function(connection) {
+      connection.query(query, params, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            body: results
+          })
+        }
+      });
+      connection.release();
+    });
+  });
   
   return router;
 }
