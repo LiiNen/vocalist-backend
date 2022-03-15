@@ -66,6 +66,9 @@ app.use('/policy', policy);
 var notice = require('./routes/notice')();
 app.use('/notice', notice);
 
+var event = require('./routes/event')();
+app.use('/event', event);
+
 // start server
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)

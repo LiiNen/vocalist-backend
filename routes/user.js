@@ -9,7 +9,6 @@ module.exports = () => {
     getConnection(function(connection) {
       connection.query(query, [id], function(error, results, fields) {
         if(error) {
-          console.log(error);
           res.json({
             'status': false,
             'log': 'query error'
@@ -19,7 +18,7 @@ module.exports = () => {
           res.json({
             'status': true,
             'body': results[0]
-          })
+          });
         }
       });
       connection.release();
@@ -36,7 +35,6 @@ module.exports = () => {
     getConnection(function(connection) {
       connection.query(query, params, function(error, results, fields) {
         if(error) {
-          console.log(error);
           res.json({
             'status': false,
             'log': 'query error'
@@ -46,7 +44,7 @@ module.exports = () => {
           res.json({
             'status': true,
             'body': 'success change name'
-          })
+          });
         }
       });
       connection.release();
