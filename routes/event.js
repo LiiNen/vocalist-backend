@@ -5,7 +5,7 @@ module.exports = () => {
   var getConnection = require('../connection');
 
   router.get('/', (req, res) => {
-    var query = `select img_url,
+    var query = `select img_url, img_banner_url,
                 (select distinct count(1) from event where id > 1) as count
                 from event where id = 1`;
     getConnection(function(connection) {
@@ -43,7 +43,7 @@ module.exports = () => {
           if(results.length == 0) {
             res.json({
               'status': true,
-              'body': {"participate": 0,"ad_participate": 0}
+              'body': {"phone": '0', "participate": 0,"ad_participate": 0}
             });
           }
           else {
