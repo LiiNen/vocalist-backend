@@ -84,5 +84,29 @@ module.exports = () => {
     });
   });
 
+  router.patch('/user', (req, res) => {
+    var user_id = req.query.user_id;
+    var query = `update event ad_participate=1 where user_id=?`;
+    var params = [user_id];
+
+    getConnection(function(connection) {
+      connection.query(query, params, function(error, results, fields) {
+        if(error) {
+          res.json({
+            'status': false,
+            'log': 'query error'
+          });
+        }
+        else {
+          res.json({
+            'status': true,
+            'body': 'event participate success!'
+          });
+        }
+      });
+      connection.release();
+    });
+  });
+
   return router;
 }
