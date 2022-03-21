@@ -136,7 +136,7 @@ module.exports = () => {
     var user_id = req.body.user_id;
     var curation_id = req.body.curation_id;
 
-    var query = `insert into playlist(user_id, title) select ?, title from curation where id=?;`;
+    var query = `insert into playlist(user_id, title, emoji) select ?, title, '😃' from curation where id=?;`;
     var params = [user_id, curation_id];
 
     getConnection(function(connection) {
