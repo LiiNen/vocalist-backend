@@ -111,7 +111,8 @@ module.exports = () => {
     if(input.includes('@')) {
       input = input.split('@')[0];
     }
-    var query = `select distinct *,
+    var query = `select distinct U.id, U.name, type, emoji,
+                CONCAT(LEFT('********', 8), '@', SUBSTRING_INDEX(email, '@', -1)) as email,
                   case when exists
                     (select user_id_response, user_id_apply from friend
                     where (user_id_apply=? and user_id_response=U.id and accept=1)
@@ -143,7 +144,8 @@ module.exports = () => {
   router.get('/user/name', (req, res) => {
     var user_id = req.query.user_id;
     var input = req.query.input;
-    var query = `select distinct *,
+    var query = `select distinct U.id, U.name, type, emoji,
+                CONCAT(LEFT('********', 8), '@', SUBSTRING_INDEX(email, '@', -1)) as email,
                   case when exists
                     (select user_id_response, user_id_apply from friend
                     where (user_id_apply=? and user_id_response=U.id and accept=1)
