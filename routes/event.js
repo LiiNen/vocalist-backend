@@ -87,8 +87,9 @@ module.exports = () => {
 
   router.patch('/user', (req, res) => {
     var user_id = req.body.user_id;
-    var query = `update event set ad_participate=1 where user_id=?`;
-    var params = [user_id];
+    var count = req.body.count;
+    var query = `update event set ad_participate=? where user_id=?`;
+    var params = [count, user_id];
 
     getConnection(function(connection) {
       connection.query(query, params, function(error, results, fields) {
