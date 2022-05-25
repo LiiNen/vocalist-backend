@@ -89,6 +89,9 @@ module.exports = () => {
     var user_id = req.body.user_id;
     var count = req.body.count;
     var query = `update event set ad_participate=? where user_id=?`;
+    if(count >= 10) {
+      count = 10;
+    }
     var params = [count, user_id];
 
     getConnection(function(connection) {
