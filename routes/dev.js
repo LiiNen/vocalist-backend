@@ -122,8 +122,8 @@ module.exports = () => {
       patchParams = [chart, number];
 
       postQuery = `insert into music(title, artist, number, chart, isMR, isMV, isLIVE)
-                  values(?, ?, ?, ?, ?, ?)`;
-      postParams = [title, artist, number, isMR, isMV, isLIVE];
+                  values(?, ?, ?, ?, ?, ?, ?)`;
+      postParams = [title, artist, number, chart, isMR, isMV, isLIVE];
     }
 
     getConnection(function(connection) {
